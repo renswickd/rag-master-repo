@@ -1,0 +1,7 @@
+langchain
+langchain-community
+langchain-groq
+chromadb
+langchain-huggingface
+PyMuPDF
+python-dotenv
