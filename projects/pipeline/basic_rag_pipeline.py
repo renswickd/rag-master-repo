@@ -11,9 +11,11 @@ class BasicRAGPipeline:
         self,
         data_dir,
         persist_directory="chroma_db",
-        groq_model="mixtral-8x7b-32768"
+        groq_model="openai/gpt-oss-20b",
+        rag_type="basic-rag"
     ):
-        self.retriever = BasicRAGRetriever(data_dir, persist_directory)
+        self.rag_type = rag_type
+        self.retriever = BasicRAGRetriever(data_dir, persist_directory, rag_type)
         self.llm = ChatGroq(
             temperature=0.2,
             model=groq_model,
@@ -26,3 +28,7 @@ class BasicRAGPipeline:
         prompt = BASIC_RAG_PROMPT.format(context=context, question=query)
         response = self.llm.invoke(prompt)
         return response.content if hasattr(response, 'content') else response
+
+    def get_pipeline_info(self):
+        """Get information about the current pipeline and collection."""
+        return self.retriever.get_collection_info()
