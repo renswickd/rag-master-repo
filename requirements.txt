@@ -1,6 +1,7 @@
 langchain
 langchain-community
 langchain-groq
+langchain-chroma
 chromadb
 langchain-huggingface
 PyMuPDF

@@ -5,7 +5,7 @@ def main():
     parser = argparse.ArgumentParser(description="RAG Pipeline CLI")
     parser.add_argument(
         "rag_type",
-        choices=["basic-rag"],  # Extend this list as you add more types
+        choices=["basic-rag"],  
         help="Type of RAG pipeline to use (currently only 'basic-rag' is supported)"
     )
     parser.add_argument(
@@ -15,21 +15,23 @@ def main():
     )
     args = parser.parse_args()
 
-    data_dir = "data/source_data"
-
+    data_dir = None
     rag = None
+
     if args.rag_type == "basic-rag":
+        data_dir = "data/source_data/basic-rag/"
         rag = BasicRAGPipeline(data_dir)
+        
     else:
         print(f"RAG type '{args.rag_type}' is not implemented yet.")
 
     if args.vectorize:
         print("Vectorizing data...")
         rag.retriever.index_pdfs()
-    print("RAG system ready. Type your question or 'exit' to quit.")
+    print("RAG system ready. Type your question or '/exit' or '/quit' to quit.")
     while True:
         query = input("Ask a question: ")
-        if query.lower() == "exit":
+        if query.lower() == "/exit" or query.lower() == "/quit":
             break
         answer = rag.answer(query)
         print(f"Answer: {answer}\n")

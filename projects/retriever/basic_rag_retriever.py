@@ -1,5 +1,6 @@
 import os
-from langchain_community.vectorstores import Chroma
+# from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from shared.utils.pdf_utils import load_pdfs_from_folder
@@ -17,6 +18,7 @@ class BasicRAGRetriever:
         self.embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
         self.vectorstore = None
+        print(f"\n\n{self.data_dir}\n\n")
 
     def index_pdfs(self):
         print(f"Indexing PDFs for collection: {self.collection_name}")
@@ -31,7 +33,6 @@ class BasicRAGRetriever:
             persist_directory=self.persist_directory,
             collection_name=self.collection_name
         )
-        self.vectorstore.persist()
         print(f"Successfully indexed {len(docs)} documents in collection: {self.collection_name}")
 
     def retrieve(self, query, top_k=3):
@@ -66,6 +67,6 @@ class BasicRAGRetriever:
             }
 
 if __name__ == "__main__":
-    retriever = BasicRAGRetriever(data_dir="data/source_data/", rag_type="basic-rag")
+    retriever = BasicRAGRetriever(data_dir="data/source_data/basic-rag/", rag_type="basic-rag")
     retriever.index_pdfs()
     print(retriever.get_collection_info())
