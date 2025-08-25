@@ -7,8 +7,9 @@ from shared.utils.chroma_utils import list_existing_collections, delete_collecti
 def main():
     parser = argparse.ArgumentParser(description="RAG Pipeline CLI")
     parser.add_argument(
-        "rag_type",
-        choices=["all", "basic-rag", "multi-modal"],  
+        "--rag_type",
+        default="basic-rag",
+        choices=["basic-rag", "multi-modal"],  
         help="Type of RAG pipeline to use (all, basic-rag, or multi-modal)"
     )
     parser.add_argument(
@@ -53,15 +54,8 @@ def main():
     if args.delete_collection:
         collection_name = f"{args.rag_type.replace('-', '_')}_collection"
         confirm = input(f"Are you sure you want to delete collection '{collection_name}'? (yes/no): ")
-        if confirm.lower() == 'yes':
+        if confirm.lower() == 'yes' or confirm.lower() == 'y':
             delete_collection(collection_name)
-        return
-
-    # Handle "all" option
-    if args.rag_type == "all":
-        print("Running all RAG pipelines...")
-        # You can implement logic to run multiple pipelines here
-        print("This feature is not yet implemented. Please specify a specific RAG type.")
         return
 
     # Set data directory based on RAG type
@@ -88,10 +82,10 @@ def main():
             print("Vectorizing data...")
             rag.retriever.index_pdfs()
         
-        print("Basic RAG system ready. Type your question or 'exit' to quit.")
+        print("Basic RAG system ready. Type your question or '/exit' or '/quit' to quit.")
         while True:
             query = input("Ask a question: ")
-            if query.lower() == "exit":
+            if query.lower() == "/exit" or query.lower() == "/quit":
                 break
             answer = rag.answer(query)
             print(f"Answer: {answer}\n")
@@ -115,10 +109,10 @@ def main():
             print("Vectorizing multi-modal data...")
             rag.retriever.index_pdfs()
         
-        print("Multi-Modal RAG system ready. Type your question or 'exit' to quit.")
+        print("Multi-Modal RAG system ready. Type your question or '/exit' or '/quit' to quit.")
         while True:
             query = input("Ask a question: ")
-            if query.lower() == "exit":
+            if query.lower() == "/exit" or query.lower() == "/quit":
                 break
             answer = rag.answer(query)
             print(f"Answer: {answer}\n")

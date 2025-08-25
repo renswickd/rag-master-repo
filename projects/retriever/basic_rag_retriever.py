@@ -18,7 +18,6 @@ class BasicRAGRetriever:
         self.embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
         self.vectorstore = None
-        print(f"\n\n{self.data_dir}\n\n")
 
     def index_pdfs(self):
         print(f"Indexing PDFs for collection: {self.collection_name}")
