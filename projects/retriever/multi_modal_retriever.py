@@ -12,19 +12,20 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from shared.utils.chroma_utils import get_collection_name_for_rag_type
 from dotenv import load_dotenv
+from shared.configs.static import PERSIST_DIR, RAG_TYPE, CLIP_MODEL, CLIP_PROCESSOR
 
 load_dotenv()
 
 class MultiModalRetriever:
-    def __init__(self, data_dir, persist_directory="chroma_db", rag_type="multi-modal"):
+    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=RAG_TYPE):
         self.data_dir = data_dir
         self.persist_directory = persist_directory
         self.rag_type = rag_type
         self.collection_name = get_collection_name_for_rag_type(rag_type)
         
         # Initialize CLIP model
-        self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        self.clip_model = CLIPModel.from_pretrained(CLIP_MODEL)
+        self.clip_processor = CLIPProcessor.from_pretrained(CLIP_PROCESSOR)
         self.clip_model.eval()
         
         # Storage for documents and embeddings
@@ -190,6 +191,6 @@ class MultiModalRetriever:
         return self.image_data_store.get(image_id)
 
 if __name__ == "__main__":
-    retriever = MultiModalRetriever(data_dir="data/source_data/multi-modal/", rag_type="multi-modal")
+    retriever = MultiModalRetriever(data_dir="data/source_data/multi-modal/", rag_type=RAG_TYPE)
     retriever.index_pdfs()
     print(retriever.get_collection_info())
