@@ -3,6 +3,7 @@ from projects.retriever.multi_modal_retriever import MultiModalRetriever
 from projects.prompts.multi_modal_prompts import MULTIMODAL_RAG_PROMPT
 from langchain.chat_models import init_chat_model
 from langchain.schema.messages import HumanMessage
+from shared.configs.static import PERSIST_DIR, RAG_TYPE
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,10 +12,9 @@ class MultiModalRAGPipeline:
     def __init__(
         self,
         data_dir,
-        persist_directory="chroma_db",
-        groq_model="mixtral-8x7b-32768"
+        persist_directory=PERSIST_DIR
     ):
-        self.rag_type = "multi-modal"
+        self.rag_type = RAG_TYPE
         self.retriever = MultiModalRetriever(data_dir, persist_directory, self.rag_type)
         
         # Initialize GPT-4 Vision model

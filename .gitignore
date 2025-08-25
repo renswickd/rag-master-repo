@@ -65,3 +65,4 @@ tmp/
 temp/
 *.tmp
 *.temp
+.qodo
