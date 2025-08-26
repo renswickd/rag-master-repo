@@ -21,14 +21,14 @@ class LangGraphRAGPipeline:
         self.graph = self._build_graph()
 
     def _build_graph(self):
-        def retrieve_node(state: dict) -> dict:
+        def retrieve_node(state: Dict[str, Any]) -> Dict[str, Any]:
             q = state.get("question", "")
             top_k = state.get("top_k", 4)
             contexts = self.retriever.retrieve(q, top_k=top_k)
-            # IMPORTANT: carry forward the question (and any other needed keys)
+            # IMPORTANT (STATE): carry forward the question (and any other needed keys)
             return {"context": "\n".join(contexts), "question": q, "top_k": top_k}
 
-        def generate_node(state: dict) -> dict:
+        def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
             context = state.get("context", "")
             question = state.get("question", "")
             prompt = LANGGRAPH_RAG_PROMPT.format(context=context, question=question)

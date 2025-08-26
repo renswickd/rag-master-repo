@@ -5,7 +5,6 @@ from projects.pipeline.multi_modal_rag_pipeline import MultiModalRAGPipeline
 from projects.pipeline.langgraph_rag_pipeline import LangGraphRAGPipeline
 from shared.utils.chroma_utils import list_existing_collections, delete_collection
 
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def main():
     parser = argparse.ArgumentParser(description="RAG Pipeline CLI")
