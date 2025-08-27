@@ -4,14 +4,15 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from shared.utils.pdf_utils import load_pdfs_from_folder
 from shared.utils.chroma_utils import get_collection_name_for_rag_type
 import os
+from shared.configs.static import PERSIST_DIR, LG_RAG_TYPE, EMBEDDING_MODEL
 
 class LangGraphRetriever:
-    def __init__(self, data_dir, persist_directory="chroma_db", rag_type="langgraph"):
+    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=LG_RAG_TYPE):
         self.data_dir = data_dir
         self.persist_directory = persist_directory
         self.rag_type = rag_type
         self.collection_name = get_collection_name_for_rag_type(rag_type)
-        self.embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
         self.vectorstore = None
 

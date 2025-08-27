@@ -4,14 +4,14 @@ from projects.pipeline.basic_rag_pipeline import BasicRAGPipeline
 from projects.pipeline.multi_modal_rag_pipeline import MultiModalRAGPipeline
 from projects.pipeline.langgraph_rag_pipeline import LangGraphRAGPipeline
 from shared.utils.chroma_utils import list_existing_collections, delete_collection
-
+from shared.configs.static import RAG_TYPES, DATA_DIR_MAP
 
 def main():
     parser = argparse.ArgumentParser(description="RAG Pipeline CLI")
     parser.add_argument(
         "--rag_type",
         default="basic-rag",
-        choices=["basic-rag", "multi-modal", "langgraph"],
+        choices=RAG_TYPES,
         help="RAG pipeline to use",
     )
     parser.add_argument("-v", "--vectorize", action="store_true", help="(Re-)vectorize data")
@@ -39,13 +39,8 @@ def main():
             delete_collection(collection_name)
         return
 
-    # Data dir per type
-    data_dir_map = {
-        "basic-rag": "data/source_data/basic-rag",
-        "multi-modal": "data/source_data/multi-modal",
-        "langgraph": "data/source_data/langgraph",
-    }
-    data_dir = data_dir_map[args.rag_type]
+
+    data_dir = DATA_DIR_MAP[args.rag_type]
     if not os.path.exists(data_dir):
         print(f"Error: Data directory '{data_dir}' does not exist!")
         return

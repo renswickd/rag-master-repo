@@ -5,12 +5,13 @@ from langchain_groq import ChatGroq
 from projects.retriever.langgraph_retriever import LangGraphRetriever
 from projects.prompts.langgraph_prompts import LANGGRAPH_RAG_PROMPT
 from langgraph.graph import StateGraph, END
+from shared.configs.static import PERSIST_DIR, LG_RAG_TYPE, GROQ_MODEL
 
 load_dotenv()
 
 class LangGraphRAGPipeline:
-    def __init__(self, data_dir, persist_directory="chroma_db", groq_model="openai/gpt-oss-20b"):
-        self.rag_type = "langgraph"
+    def __init__(self, data_dir, persist_directory=PERSIST_DIR, groq_model=GROQ_MODEL):
+        self.rag_type = LG_RAG_TYPE
         self.retriever = LangGraphRetriever(data_dir, persist_directory, self.rag_type)
         self.llm = ChatGroq(
             temperature=0.2,
