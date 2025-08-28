@@ -2,7 +2,7 @@ import chromadb
 from chromadb.config import Settings
 import os
 
-allowed_collection_types = ["basic_rag_collection", "multi_modal_collection"]
+allowed_collection_types = ["basic_rag_collection", "multi_modal_collection", "langgraph_collection"]
 
 def get_persistent_chroma_collection(
     collection_name: str = "basic_rag_collection",

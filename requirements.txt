@@ -2,7 +2,10 @@ langchain
 langchain-community
 langchain-groq
 langchain-chroma
-chromadb
 langchain-huggingface
+langgraph>=0.2.0
+transformers>=4.39.0
+torch>=2.2.0
+Pillow>=10.0.0
 PyMuPDF
 python-dotenv
