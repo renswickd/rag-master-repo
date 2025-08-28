@@ -1,10 +1,11 @@
 # Command line arguments
-RAG_TYPES = ["basic-rag", "multi-modal", "langgraph"]
+RAG_TYPES = ["basic-rag", "multi-modal", "langgraph", "rag-ubac"]
 # Data dir per type
 DATA_DIR_MAP = {
     "basic-rag": "data/source_data/basic-rag",
     "multi-modal": "data/source_data/multi-modal",
     "langgraph": "data/source_data/langgraph",
+    "rag-ubac": "data/source_data/rag-ubac",
 }
 
 # Vector Database
