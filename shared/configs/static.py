@@ -23,3 +23,12 @@ CLIP_PROCESSOR = "openai/clip-vit-base-patch32"
 
 # Langgraph
 LG_RAG_TYPE = "langgraph"
+
+# RAG-UBAC
+VALID_ROLES = {"executive", "hr", "junior"}
+FILE_ACCESS_METADATA = {
+    "Executive-Strategy.pdf":"executive", 
+    "HR-Policies-and-Benefits.pdf":"hr", 
+    "Onboarding-Guide-Junior.pdf":"junior"
+}
+RAG_UBAC_TYPE = "rag-ubac"

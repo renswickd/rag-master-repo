@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from projects.retriever.rag_ubac_retriever import RAGUBACRetriever
 from projects.prompts.prompts import BASIC_RAG_PROMPT
+from shared.configs.static import PERSIST_DIR, GROQ_MODEL, RAG_UBAC_TYPE
+from shared.components.rag_ubac_scripts import get_ubac_role
 
 load_dotenv()
 
@@ -10,13 +12,12 @@ class RAGUBACPipeline:
     def __init__(
         self,
         data_dir,
-        persist_directory="chroma_db",
-        groq_model="openai/gpt-oss-20b",
-        rag_type="rag-ubac",
-        role="executive"
+        persist_directory=PERSIST_DIR,
+        groq_model=GROQ_MODEL,
+        rag_type=RAG_UBAC_TYPE
     ):
         self.rag_type = rag_type
-        self.role = role
+        self.role = get_ubac_role()
         self.retriever = RAGUBACRetriever(data_dir, persist_directory, rag_type)
         self.llm = ChatGroq(
             temperature=0.2,

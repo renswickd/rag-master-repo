@@ -4,7 +4,7 @@ from projects.pipeline.basic_rag_pipeline import BasicRAGPipeline
 from projects.pipeline.multi_modal_rag_pipeline import MultiModalRAGPipeline
 from projects.pipeline.langgraph_rag_pipeline import LangGraphRAGPipeline
 from shared.utils.chroma_utils import list_existing_collections, delete_collection
-from shared.configs.static import RAG_TYPES, DATA_DIR_MAP
+from shared.configs.static import RAG_TYPES, DATA_DIR_MAP, VALID_ROLES
 from projects.pipeline.rag_ubac_pipeline import RAGUBACPipeline
 
 def main():
@@ -51,14 +51,8 @@ def main():
     elif args.rag_type == "multi-modal":
         rag = MultiModalRAGPipeline(data_dir)
     elif args.rag_type == "rag-ubac":
-        # Prompt for role/persona
-        valid_roles = {"executive", "hr", "junior"}
-        role = ""
-        while role not in valid_roles:
-            role = input("Enter your role (executive/hr/junior): ").strip().lower()
-            if role not in valid_roles:
-                print("Invalid role. Please choose one of: executive, hr, junior.")
-        rag = RAGUBACPipeline(data_dir, role=role, rag_type=args.rag_type)
+        
+        rag = RAGUBACPipeline(data_dir, rag_type=args.rag_type)
     else:
         rag = LangGraphRAGPipeline(data_dir)
 
