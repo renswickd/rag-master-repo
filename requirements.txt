@@ -3,9 +3,10 @@ langchain-community
 langchain-groq
 langchain-chroma
 langchain-huggingface
-langgraph>=0.2.0
+langgraph>=0.3.0
 transformers>=4.39.0
-torch>=2.2.0
+torch>=2.2.0,<2.3.0
+torchvision>=0.17.0,<0.18.0
 Pillow>=10.0.0
 PyMuPDF
 python-dotenv

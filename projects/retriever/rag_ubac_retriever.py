@@ -1,21 +1,21 @@
 import os
-import fitz  # PyMuPDF
+import fitz
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from shared.utils.chroma_utils import get_collection_name_for_rag_type
-from shared.configs.static import FILE_ACCESS_METADATA, VALID_ROLES
+from shared.configs.static import FILE_ACCESS_METADATA, VALID_ROLES, PERSIST_DIR, RAG_UBAC_TYPE, EMBEDDING_MODEL
 
 load_dotenv()
 
 class RAGUBACRetriever:
-    def __init__(self, data_dir, persist_directory="chroma_db", rag_type="rag-ubac"):
+    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=RAG_UBAC_TYPE):
         self.data_dir = data_dir
         self.persist_directory = persist_directory
         self.rag_type = rag_type
         self.collection_name = get_collection_name_for_rag_type(rag_type)
-        self.embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
         self.vectorstore = None
 
@@ -44,7 +44,7 @@ class RAGUBACRetriever:
             return ["executive", "hr"]
         elif base_access == "junior":
             return ["executive", "hr", "junior"]
-        return ["executive"]  # Default fallback
+        return ["executive"]
 
     def index_pdfs(self):
         """Index PDFs with metadata based on FILE_ACCESS_METADATA."""
@@ -76,16 +76,19 @@ class RAGUBACRetriever:
 
             # Create metadata for each chunk
             allowed_roles = self._allowed_roles_for_file(filename)
-            metadatas = [{
-                "source": filename, 
-                "base_access_level": base_access,
-                "allowed_roles": allowed_roles,
-                "file_type": "pdf"
-            }]
+            print(allowed_roles)
             
-            # Split text into chunks with metadata
-            chunks = self.text_splitter.create_documents([text], metadatas=metadatas)
-            docs.extend(chunks)
+            for role in allowed_roles:
+                metadatas = [{
+                    "source": filename, 
+                    "base_access_level": base_access,
+                    "access_role": role,
+                    "file_type": "pdf"
+                }]
+                
+                # Split text into chunks with metadata
+                chunks = self.text_splitter.create_documents([text], metadatas=metadatas)
+                docs.extend(chunks)
 
         if not docs:
             print("No documents to index for UBAC.")
@@ -98,7 +101,7 @@ class RAGUBACRetriever:
             collection_name=self.collection_name
         )
         print(f"Successfully indexed {len(docs)} chunks in UBAC collection: {self.collection_name}")
-        print(f"Access levels: {FILE_ACCESS_METADATA}")
+        # print(f"Access levels: {FILE_ACCESS_METADATA}")
 
     def _ensure_store(self):
         """Ensure vectorstore is loaded."""
@@ -119,17 +122,19 @@ class RAGUBACRetriever:
             print(f"Unknown role '{role}'. Valid roles are: {VALID_ROLES}")
             return []
         
-        # Get documents this role can access
         accessible_files = self._get_access_levels_for_role(role)
         if not accessible_files:
             print(f"Role '{role}' has no access to any documents.")
             return []
         
-        # Create filter for ChromaDB based on allowed roles
-        chroma_filter = {"allowed_roles": {"$in": [role]}}
+        # Create filter for ChromaDB
+        chroma_filter = {"access_role": {"$eq": role}}
         
         try:
             docs = self.vectorstore.similarity_search(query, k=top_k, filter=chroma_filter)
+            print("\n\n")
+            print(docs)
+            print("\n\n")
             retrieved_sources = set(doc.metadata.get("source", "") for doc in docs)
             print(f"Retrieved from sources: {retrieved_sources}")
             return [doc.page_content for doc in docs]
