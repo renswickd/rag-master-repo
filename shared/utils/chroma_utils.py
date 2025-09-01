@@ -2,7 +2,14 @@ import chromadb
 from chromadb.config import Settings
 import os
 
-allowed_collection_types = ["basic_rag_collection", "multi_modal_collection", "langgraph_collection", "rag_ubac_collection"]
+allowed_collection_types = [
+    "basic_rag_collection", 
+    "multi_modal_collection", 
+    "langgraph_collection", 
+    "rag_ubac_collection",
+    "cache_rag_collection",
+    "cache_rag_cache_collection"
+]
 
 def get_persistent_chroma_collection(
     collection_name: str = "basic_rag_collection",
@@ -59,10 +66,3 @@ def get_collection_info(collection_name: str, persist_directory: str = "chroma_d
     except Exception as e:
         print(f"Error getting collection info for {collection_name}: {e}")
         return None
-
-def migrate_old_chroma_data(old_persist_directory: str = "chroma_db"):
-    """Helper function to check if migration is needed."""
-    print("If you have old Chroma data that needs migration:")
-    print("1. Install migration tool: pip install chroma-migrate")
-    print("2. Run migration: chroma-migrate")
-    print("3. See: https://docs.trychroma.com/deployment/migration")

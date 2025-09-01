@@ -5,6 +5,7 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
 - Multi-modal RAG (text + images via CLIP + GPT‑4.1)
 - LangGraph RAG (two-node graph: retrieve → generate)
 - rag-ubac: Role-based access control (UBAC) RAG
+- Cache-RAG: Intelligent caching of Q&A pairs with LangGraph orchestration
 
 Answers are grounded: the system answers ONLY using retrieved context; otherwise it replies:
 "I am a helpful assitant for you to assist with the internal knowledge base; No related contents retrived for the provided query - Try modifying your query for assistance."
@@ -78,6 +79,14 @@ pip install -r requirements.txt
   python main.py --rag_type rag-ubac --info
   ```
 
+- Cache-RAG
+  ```
+  python main.py --rag_type cache-rag
+  python main.py --rag_type cache-rag --vectorize
+  python main.py --rag_type cache-rag --clear-cache
+  python main.py --rag_type cache-rag --info
+  ```
+
 - Manage collections (ChromaDB)
   ```
   python main.py --rag_type basic-rag --list-collections
@@ -103,11 +112,13 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac}
   - `multi_modal_retriever.py`
   - `langgraph_retriever.py`
   - `rag_ubac_retriever.py`
+  - `cache_rag_retriever.py`
 - `projects/pipeline/`
   - `basic_rag_pipeline.py`
   - `multi_modal_rag_pipeline.py`
   - `langgraph_rag_pipeline.py`
   - `rag_ubac_pipeline.py`
+  - `cache_rag_pipeline.py`
 - `projects/prompts/`
   - `prompts.py` (basic)
   - `multi_modal_prompts.py`
@@ -125,3 +136,4 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac}
 - Multi‑Modal RAG: `docs/tutorials/multi-modal-rag.md`
 - RAG using Langgraph: `docs/tutorials/langgraph-rag.md`
 - RAG-UBAC tutorial: see `docs/tutorials/rag-ubac-tutorial.md`
+- Cache-RAG: `docs/tutorials/cache-rag-tutorial.md`
