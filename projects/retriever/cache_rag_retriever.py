@@ -1,11 +1,10 @@
-import os
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from shared.utils.pdf_utils import load_pdfs_from_folder
 from shared.utils.chroma_utils import get_collection_name_for_rag_type
-from shared.configs.static import PERSIST_DIR, EMBEDDING_MODEL, CACHE_RAG_TYPE
+from shared.configs.static import PERSIST_DIR, EMBEDDING_MODEL, CACHE_RAG_TYPE, TOP_K
 
 load_dotenv()
 
@@ -66,11 +65,31 @@ class CacheRAGRetriever:
         print(f"Successfully indexed {len(docs)} chunks in {self.retriever_collection}")
 
     # ---------- Cache operations ----------
-    def cache_search(self, question: str, top_k: int = 1):
+    def cache_search(self, question: str, top_k: int = 1, similarity_threshold: float = 0.5):
         self._ensure_cache_vs()
         try:
-            results = self.cache_vs.similarity_search(question, k=top_k, filter={"type": {"$eq": "cache"}})
-            return results or []
+            # Use similarity_search_with_score to get similarity scores
+            results = self.cache_vs.similarity_search_with_score(
+                question, 
+                k=top_k, 
+                filter={"type": {"$eq": "cache"}}
+            )
+            
+            # Filter results based on similarity threshold
+            # ChromaDB returns squared euclidean distance, convert to similarity
+            filtered_results = []
+            for doc, distance in results:
+                # For euclidean distance, convert to similarity score
+                # Similarity = 1 / (1 + distance)
+                similarity = 1 / (1 + distance)
+                print(f"Cache similarity check: {similarity:.3f} (distance: {distance:.3f}, threshold: {similarity_threshold})")
+                if similarity >= similarity_threshold:
+                    print(f"Cache hit! Similarity: {similarity:.3f}")
+                    filtered_results.append(doc)
+                else:
+                    print(f"Cache miss - below threshold. Similarity: {similarity:.3f}")
+            
+            return filtered_results
         except Exception as e:
             print(f"Cache search error: {e}")
             return []
@@ -86,10 +105,24 @@ class CacheRAGRetriever:
             print(f"Cache upsert error: {e}")
 
     # ---------- Retrieval ----------
-    def retrieve(self, query, top_k=3):
+    def retrieve(self, query, top_k=TOP_K):
         self._ensure_retriever_vs()
-        docs = self.retriever_vs.similarity_search(query, k=top_k)#, filter={"type": {"$eq": "retriever"}})
+        docs = self.retriever_vs.similarity_search(query, k=top_k)
         return [doc.page_content for doc in docs]
+
+    def clear_cache(self):
+        """Clear all cache entries from the cache collection."""
+        try:
+            self._ensure_cache_vs()
+            # Get all cache entries
+            all_cache = self.cache_vs.get(where={"type": {"$eq": "cache"}})
+            if all_cache["ids"]:
+                self.cache_vs.delete(ids=all_cache["ids"])
+                print(f"Cleared {len(all_cache['ids'])} cache entries")
+            else:
+                print("Cache is already empty")
+        except Exception as e:
+            print(f"Error clearing cache: {e}")
 
     def get_collection_info(self):
         try:

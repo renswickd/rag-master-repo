@@ -4,8 +4,9 @@ from projects.pipeline.basic_rag_pipeline import BasicRAGPipeline
 from projects.pipeline.multi_modal_rag_pipeline import MultiModalRAGPipeline
 from projects.pipeline.langgraph_rag_pipeline import LangGraphRAGPipeline
 from shared.utils.chroma_utils import list_existing_collections, delete_collection
-from shared.configs.static import RAG_TYPES, DATA_DIR_MAP, VALID_ROLES
+from shared.configs.static import RAG_TYPES, DATA_DIR_MAP
 from projects.pipeline.rag_ubac_pipeline import RAGUBACPipeline
+from projects.pipeline.cache_rag_pipeline import CacheRAGPipeline
 
 def main():
     parser = argparse.ArgumentParser(description="RAG Pipeline CLI")
@@ -18,6 +19,7 @@ def main():
     parser.add_argument("-v", "--vectorize", action="store_true", help="(Re-)vectorize data")
     parser.add_argument("--list-collections", action="store_true", help="List collections and exit")
     parser.add_argument("--delete-collection", action="store_true", help="Delete the collection for the specified RAG type and exit")
+    parser.add_argument("--clear-cache", action="store_true", help="Clear cache collection (only for cache-rag)")
     parser.add_argument("--info", action="store_true", help="Show pipeline and collection information")
     args = parser.parse_args()
 
@@ -40,6 +42,17 @@ def main():
             delete_collection(collection_name)
         return
 
+    if args.clear_cache:
+        if args.rag_type != "cache-rag":
+            print("Error: --clear-cache can only be used with --rag_type cache-rag")
+            return
+        confirm = input("Are you sure you want to clear the cache collection? (yes/no): ")
+        if confirm.lower() == 'yes' or confirm.lower() == 'y':
+            data_dir = DATA_DIR_MAP[args.rag_type]
+            rag = CacheRAGPipeline(data_dir)
+            rag.retriever.clear_cache()
+        return
+
 
     data_dir = DATA_DIR_MAP[args.rag_type]
     if not os.path.exists(data_dir):
@@ -47,12 +60,13 @@ def main():
         return
 
     if args.rag_type == "basic-rag":
-        rag = BasicRAGPipeline(data_dir, rag_type=args.rag_type)
+        rag = BasicRAGPipeline(data_dir)
     elif args.rag_type == "multi-modal":
         rag = MultiModalRAGPipeline(data_dir)
     elif args.rag_type == "rag-ubac":
-        
-        rag = RAGUBACPipeline(data_dir, rag_type=args.rag_type)
+        rag = RAGUBACPipeline(data_dir)
+    elif args.rag_type == "cache-rag":
+        rag = CacheRAGPipeline(data_dir)
     else:
         rag = LangGraphRAGPipeline(data_dir)
 
