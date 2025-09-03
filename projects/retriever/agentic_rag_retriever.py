@@ -1,10 +1,7 @@
 import os
 from langchain_chroma import Chroma
-# from langchain_huggingface import HuggingFaceEmbeddings
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from shared.utils.pdf_utils import load_pdfs_from_folder
-# from shared.utils.chroma_utils import get_collection_name_for_rag_type
 from shared.configs.static import AGENTIC_RAG_TYPE, TOP_K
 from shared.configs.retriever_configs import get_retriever_config
 

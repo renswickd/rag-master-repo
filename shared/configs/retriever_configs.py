@@ -11,14 +11,3 @@ def get_retriever_config(rag_type: str):
             "persist_directory": PERSIST_DIR,
             "vectorstore": None,
         }
-
-    # if rag_type == "basic-rag":
-    #     return BasicRAGRetrieverConfig()
-    # elif rag_type == "multi-modal":
-    #     return MultiModalRetrieverConfig()
-    # elif rag_type == "langgraph":
-    #     return LangGraphRetrieverConfig()
-    # elif rag_type == "rag-ubac":
-    #     return RAGUBACRetrieverConfig()
-    # elif rag_type == "cache-rag":
-    #     return CacheRAGRetrieverConfig()
