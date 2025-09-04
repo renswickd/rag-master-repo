@@ -1,14 +1,16 @@
 import os
-import requests
 from dotenv import load_dotenv
 from typing import Any, Dict, List, Optional
 from langchain_groq import ChatGroq
-# from shared.components.agentic_rag_states import AgentState, RelevanceGrade
 from shared.configs.static import GROQ_MODEL as DEFAULT_GROQ_MODEL
-from shared.utils.document_utils import format_docs
 from shared.tools.web_search_tool import serp_search
 from shared.tools.currency_converter_tool import exchangerate_converter
 from shared.components.agentic_rag_nodes import agent, grade_documents, rewrite, generate
+from shared.components.agentic_rag_states import AgentState
+from langgraph.graph import StateGraph, START, END
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.messages import HumanMessage, AIMessage
+
 
 load_dotenv()
 
@@ -21,12 +23,68 @@ class AgenticRAGReActPipeline:
             temperature=temperature,
             api_key=os.getenv("GROQ_API_KEY"),
         )
-        # Build built-in tools: web search and currency converter
-        serp_key = os.getenv("SERPAPI_API_KEY")
 
         # Final tool list: user retriever tools + our two built-ins
         self.tools = list(tools) + [serp_search, exchangerate_converter]
         self.graph = self._build_graph()
+
+    def _build_graph(self):
+        workflow = StateGraph(AgentState)
+
+        workflow.add_node("agent", agent)
+        workflow.add_node("retrieve", ToolNode(self.tools))
+        workflow.add_node("rewrite", rewrite)
+        workflow.add_node("generate", generate)
+        # Node to handle conversations that try to bypass tools
+        def _restricted(_: AgentState) -> Dict[str, Any]:
+            print("--- _restricted ---")
+            msg = (
+                "This app only supports: document retrieval, web search, and currency conversion. "
+                "Your request appears outside this scope. Please use one of the supported capabilities."
+            )
+            return {"messages": [AIMessage(content=msg)]}
+
+        workflow.add_node("restricted", _restricted)
+
+        workflow.add_edge(START, "agent")
+
+        workflow.add_conditional_edges(
+            "agent",
+            tools_condition,
+            {
+                # If the agent called any tool, execute it
+                "tools": "retrieve",
+                # If the agent tried to answer directly, treat as out of scope
+                END: "restricted",
+            },
+        )
+
+        workflow.add_conditional_edges("retrieve", grade_documents)
+        workflow.add_edge("generate", END)
+        workflow.add_edge("restricted", END)
+        workflow.add_edge("rewrite", "agent")
+
+        return workflow.compile()
+
+    def answer(self, question: str) -> str:
+        result = self.graph.invoke({"messages": [HumanMessage(content=question)]})
+        # Extract last assistant message content
+        msgs = result.get("messages", [])
+        if not msgs:
+            return ""
+        last = msgs[-1]
+        try:
+            return getattr(last, "content", str(last))
+        except Exception:
+            return str(last)
+        
+if __name__ == "__main__":
+
+    ## Test the flow
+    graph = AgenticRAGReActPipeline(tools=[], debug=True)
+
+    # graph.answer("What is 1 EUR in INR")
+    graph.answer("what is the latest news about AWS submit in NZ")
 
     
 
