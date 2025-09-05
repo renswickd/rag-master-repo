@@ -1,5 +1,4 @@
 import chromadb
-from chromadb.config import Settings
 import os
 
 allowed_collection_types = [
@@ -8,7 +7,8 @@ allowed_collection_types = [
     "langgraph_collection", 
     "rag_ubac_collection",
     "cache_rag_collection",
-    "cache_rag_cache_collection"
+    "cache_rag_cache_collection",
+    "agentic_rag_collection"
 ]
 
 def get_persistent_chroma_collection(
