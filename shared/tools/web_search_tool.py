@@ -20,6 +20,8 @@ def _web_search(query: str, num: int = 2) -> str:
         resp.raise_for_status()
         data = resp.json()
         results = data.get("organic_results", [])
+        print(f"DEBUG: length of results: {len(results)}")
+
         if not results:
             return f"No search results for: {query}"
         lines: List[str] = []

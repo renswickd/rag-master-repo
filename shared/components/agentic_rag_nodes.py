@@ -1,9 +1,9 @@
 from typing import Any, Dict, Literal
 from shared.components.agentic_rag_states import AgentState, RelevanceGrade
 from langchain.prompts import PromptTemplate
-from langchain_core.messages import HumanMessage, ToolMessage, SystemMessage, AIMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from shared.utils.document_utils import format_docs
-from langchain.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser
 
 def agent(self, state: AgentState) -> Dict[str, Any]:
     """Decide next action using the model; binds tools for ReAct."""
@@ -14,7 +14,6 @@ def agent(self, state: AgentState) -> Dict[str, Any]:
         "You are restricted to three capabilities only:\n"
         "1) retriever tools provided, 2) web_search, 3) currency_convert.\n"
         "- Always use one of these tools to act.\n"
-        "- Never answer directly without calling a tool; if unsure, prefer web_search.\n"
         "- For currency tasks, call currency_convert with: amount (float), from_currency (3 letters), to_currency (3 letters).\n"
         "- For factual lookup, call web_search. For corpus knowledge, call a retriever tool."
     ))
