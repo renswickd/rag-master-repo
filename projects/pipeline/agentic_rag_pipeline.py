@@ -2,9 +2,14 @@ import os
 from dotenv import load_dotenv
 from typing import Any, Dict, List, Optional
 from langchain_groq import ChatGroq
-from shared.configs.static import GROQ_MODEL as DEFAULT_GROQ_MODEL
+from shared.configs.static import (
+    GROQ_MODEL as DEFAULT_GROQ_MODEL,
+    AGENTIC_RAG_TYPE,
+)
 from shared.tools.web_search_tool import serp_search
 from shared.tools.currency_converter_tool import exchangerate_converter
+from shared.tools.agentic_retriever_tool import make_agentic_retriever_tool
+from projects.retriever.agentic_rag_retriever import AgenticRAGRetriever
 from shared.components.agentic_rag_nodes import agent, grade_documents, rewrite, generate
 from shared.components.agentic_rag_states import AgentState
 from langgraph.graph import StateGraph, START, END
@@ -16,7 +21,15 @@ load_dotenv()
 
 class AgenticRAGReActPipeline:
 
-    def __init__(self, tools: List[Any], groq_model: Optional[str] = None, temperature: float = 0.2, debug: bool = False):
+    def __init__(
+        self,
+        data_dir: str,
+        groq_model: Optional[str] = None,
+        temperature: float = 0.2,
+        debug: bool = False,
+        rag_type: str = AGENTIC_RAG_TYPE,
+        extra_tools: Optional[List[Any]] = None,
+    ):
         model_name = groq_model or DEFAULT_GROQ_MODEL
         print(f"Using model: {model_name}")
         self.llm = ChatGroq(
@@ -24,12 +37,17 @@ class AgenticRAGReActPipeline:
             temperature=temperature,
             api_key=os.getenv("GROQ_API_KEY"),
         )
-        # Build built-in tools: web search and currency converter
-        # serp_key = os.getenv("SERPAPI_API_KEY")
         self.debug = debug
 
-        # Final tool list: user retriever tools + our two built-ins
-        self.tools = list(tools) + [serp_search, exchangerate_converter]
+        # Initialize the resume retriever and corresponding tool
+        self.retriever = AgenticRAGRetriever(data_dir=data_dir, rag_type=rag_type)
+        resume_tool = make_agentic_retriever_tool(self.retriever)
+
+        # Final tool list: resume retriever + built-ins + optional extras
+        self.tools = [resume_tool, serp_search, exchangerate_converter]
+        if extra_tools:
+            self.tools.extend(list(extra_tools))
+
         self.graph = self._build_graph()
 
     def _build_graph(self):
@@ -82,17 +100,19 @@ class AgenticRAGReActPipeline:
             return getattr(last, "content", str(last))
         except Exception:
             return str(last)
+    
+    def get_pipeline_info(self) -> Dict[str, Any]:
+        return self.retriever.get_collection_info()
         
 if __name__ == "__main__":
 
-    ## Test the flow
-    graph = AgenticRAGReActPipeline(tools=[], debug=True)
+    ## Test the flow (ensure data exists at data/source_data/agentic_rag)
+    graph = AgenticRAGReActPipeline(data_dir="data/source_data/agentic-rag", debug=True)
 
-    # answer =graph.answer("What is 1 EUR in INR")
-    answer = graph.answer("what is the latest news about AWS submit in NZ")
+    # answer = graph.answer("What is 1 EUR in INR")
     # answer = graph.answer("generate a cover letter for my personal resume")
-
-    print("\n\nAnswer: ",answer)
+    answer = graph.answer("Summarize the candidate's AWS experience")
+    print("\n\nAnswer: ", answer)
 
 
     

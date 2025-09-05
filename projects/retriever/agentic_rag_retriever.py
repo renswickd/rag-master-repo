@@ -62,6 +62,6 @@ class AgenticRAGRetriever:
         }
 
 if __name__ == "__main__":
-    retriever = AgenticRAGRetriever(data_dir="data/source_data/basic-rag", rag_type="agentic-rag")
+    retriever = AgenticRAGRetriever(data_dir="data/source_data/agentic-rag", rag_type="agentic-rag")
     retriever.index_pdfs()
     print(retriever.get_collection_info())

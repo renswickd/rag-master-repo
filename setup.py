@@ -26,7 +26,7 @@ setup(
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/renswickd/rag-master-repo",
-    keywords="rag, retrieval-augmented-generation, langchain, chromadb, groq, ai, ml, nlp",
+    keywords="rag, retrieval-augmented-generation, langchain, chromadb, groq, langgraph, agentic-rag, rag-ubac, cache-rag",
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=read_requirements(),

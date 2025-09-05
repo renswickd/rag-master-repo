@@ -23,3 +23,9 @@ class CurrencyConvertInput(BaseModel):
     amount: confloat(gt=0)  # type: ignore
     from_currency: constr(min_length=3, max_length=3)  # type: ignore
     to_currency: constr(min_length=3, max_length=3)  # type: ignore
+
+
+class AgenticRetrieverInput(BaseModel):
+    """Input schema for the resume retriever tool."""
+    query: constr(min_length=1)  # type: ignore
+    top_k: conint(ge=1, le=20) = 5  # type: ignore
