@@ -1,34 +1,12 @@
 import chromadb
-import os
-
-allowed_collection_types = [
-    "basic_rag_collection", 
-    "multi_modal_collection", 
-    "langgraph_collection", 
-    "rag_ubac_collection",
-    "cache_rag_collection",
-    "cache_rag_cache_collection",
-    "agentic_rag_collection"
-]
-
-def get_persistent_chroma_collection(
-    collection_name: str = "basic_rag_collection",
-    persist_directory: str = "chroma_db"
-):
-    """Create or get a persistent ChromaDB collection."""
-    if collection_name not in allowed_collection_types:
-        raise ValueError(f"Invalid collection type: {collection_name}. Allowed types are: {allowed_collection_types}")
-
-    # Ensure persist directory exists
-    os.makedirs(persist_directory, exist_ok=True)
-    
-    # New Chroma client configuration (Chroma 0.4.x+)
-    client = chromadb.PersistentClient(path=persist_directory)
-    return client.get_or_create_collection(collection_name)
+from shared.configs.static import ALLOWED_COLLECTIONS
 
 def get_collection_name_for_rag_type(rag_type: str) -> str:
     """Generate collection name based on RAG type."""
-    return f"{rag_type.replace('-', '_')}_collection"
+    collection_name = f"{rag_type.replace('-', '_')}_collection"
+    if collection_name not in ALLOWED_COLLECTIONS:
+        raise ValueError(f"Invalid RAG type: {rag_type}")
+    return collection_name
 
 def list_existing_collections(persist_directory: str = "chroma_db") -> list:
     """List all existing collections in the persist directory."""
