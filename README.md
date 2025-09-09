@@ -20,15 +20,22 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
 
 ## Setup
 
-1) Data layout
+1) Quick start
+- From the repo root, run the setup script to create data folders, a virtual environment (`.venv`), and install the repo in editable mode:
+  ```
+  bash ./setup.sh
+  source .venv/bin/activate
+  ```
+
+2) Data layout
 - Place your PDFs in:
   - `data/source_data/basic-rag/`
   - `data/source_data/multi-modal/`
- - `data/source_data/langgraph/`
+  - `data/source_data/langgraph/`
   - `data/source_data/rag-ubac/`
-  - `data/source_data/agentic_rag/`
+  - `data/source_data/agentic-rag/`
 
-2) Environment (.env)
+3) Environment (.env)
 - GROQ (basic, langgraph):
   ```
   GROQ_API_KEY=your_groq_key_here
@@ -47,7 +54,7 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
   TOKENIZERS_PARALLELISM=false
   ```
 
-3) Install
+4) Manual install (alternative to setup.sh)
 ```
 pip install -r requirements.txt
 ```
