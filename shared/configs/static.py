@@ -28,6 +28,9 @@ TOP_K = 5
 # LLM
 GROQ_MODEL = "openai/gpt-oss-20b"
 
+# Basic RAG
+B_RAG_TYPE = "basic-rag"
+
 # Multi Modal RAG
 RAG_TYPE = "multi-modal"
 ## retriever

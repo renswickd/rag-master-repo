@@ -1,13 +1,13 @@
 from langchain_chroma import Chroma
 from shared.utils.pdf_utils import load_pdfs_from_folder
-from shared.configs.static import TOP_K
+from shared.configs.static import TOP_K, B_RAG_TYPE
 from shared.configs.retriever_configs import get_retriever_config
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class BasicRAGRetriever:
-    def __init__(self, data_dir, rag_type="basic-rag"):
+    def __init__(self, data_dir, rag_type=B_RAG_TYPE):
         self.data_dir = data_dir
         self.rag_type = rag_type
         self.config = get_retriever_config(rag_type)

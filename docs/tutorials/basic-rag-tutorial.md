@@ -4,7 +4,7 @@ This tutorial walks you through using the basic RAG pipeline in this repository.
 
 ## 1. Prepare Your Data
 
-- Place your PDF files in the `data/source_data/` directory.
+- Place your PDF files in the `data/source_data/basic-rag/` directory.
 
 ## 2. Set Up Your Environment
 
@@ -21,17 +21,17 @@ This tutorial walks you through using the basic RAG pipeline in this repository.
 
 - To start the basic RAG pipeline:
   ```
-  python main.py basic-rag
+  python main.py --rag_type basic-rag
   ```
 - To force re-vectorization of your data:
   ```
-  python main.py basic-rag -v
+  python main.py --rag_type basic-rag -v
   ```
 
 ## 4. Ask Questions
 
 - Type your question at the prompt.
-- The system will retrieve relevant context from your PDFs and generate an answer using the GROQ LLM.
+- The system will retrieve relevant context from your PDFs and generate an answer using the GROQ API with gpt-oss-20b model.
 
 ---
 
