@@ -109,3 +109,6 @@ Type questions at the prompt. Use `/exit` or `/quit` to leave.
 - Adjust chunk size/overlap in `shared/configs/retriever_configs.py`.
 - Swap the embedder by changing `EMBEDDING_MODEL` in `shared/configs/static.py`.
 - Customize the grounding prompt in `projects/prompts/prompts.py`.
+
+### Read the Blog on Medium
+[RAG Series: Part 1 - Basic RAG](https://medium.com/@renswick.d/rag-series-part-1-basic-rag-2368c3243666)

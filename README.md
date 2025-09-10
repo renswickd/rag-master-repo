@@ -18,6 +18,9 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
 - CLI for vectorizing, querying, inspecting, listing, and deleting collections
 - Grounded prompts to reduce hallucinations
 
+Repository
+- https://github.com/renswickd/rag-master-repo.git
+
 ## Setup
 
 1) Quick start
@@ -160,3 +163,6 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac | agentic-rag}
 - RAG-UBAC tutorial: see `docs/tutorials/rag-ubac-tutorial.md`
 - Cache-RAG: `docs/tutorials/cache-rag-tutorial.md`
 - Agentic-RAG: `docs/tutorials/agentic-rag-tutorial.md`
+
+## Read the Stories on Medium
+- [RAG Series: Part 1 - Basic RAG](https://medium.com/@renswick.d/rag-series-part-1-basic-rag-2368c3243666)
