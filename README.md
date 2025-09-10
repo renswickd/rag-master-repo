@@ -166,3 +166,4 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac | agentic-rag}
 
 ## Read the Stories on Medium
 - [RAG Series: Part 1 - Basic RAG](https://medium.com/@renswick.d/rag-series-part-1-basic-rag-2368c3243666)
+- [RAG Series: Part 2 - RAG using LangGraph](https://medium.com/@renswick.d/rag-series-part-2-rag-with-langgraph-1f5f2e669518)

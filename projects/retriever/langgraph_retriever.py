@@ -1,20 +1,20 @@
-from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from shared.utils.pdf_utils import load_pdfs_from_folder
-from shared.utils.chroma_utils import get_collection_name_for_rag_type
 import os
-from shared.configs.static import PERSIST_DIR, LG_RAG_TYPE, EMBEDDING_MODEL
+from langchain_chroma import Chroma
+from shared.utils.pdf_utils import load_pdfs_from_folder
+from shared.configs.retriever_configs import get_retriever_config
+from shared.configs.static import LG_RAG_TYPE, TOP_K
 
 class LangGraphRetriever:
-    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=LG_RAG_TYPE):
+    def __init__(self, data_dir, rag_type=LG_RAG_TYPE):
         self.data_dir = data_dir
-        self.persist_directory = persist_directory
         self.rag_type = rag_type
-        self.collection_name = get_collection_name_for_rag_type(rag_type)
-        self.embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-        self.vectorstore = None
+        self.config = get_retriever_config(rag_type)
+
+        self.embedding = self.config["embedding"]
+        self.text_splitter = self.config["text_splitter"]
+        self.collection_name = self.config["collection_name"]
+        self.persist_directory = self.config["persist_directory"]
+        self.vectorstore = self.config["vectorstore"]
 
     def index_pdfs(self):
         if not os.path.exists(self.data_dir):
@@ -41,7 +41,7 @@ class LangGraphRetriever:
             )
 
 
-    def retrieve(self, query, top_k=4):
+    def retrieve(self, query, top_k=TOP_K):
         self._ensure_store()
         docs = self.vectorstore.similarity_search(query, k=top_k)
         return [d.page_content for d in docs]
