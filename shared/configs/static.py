@@ -1,5 +1,15 @@
 # Command line arguments
 RAG_TYPES = ["basic-rag", "multi-modal", "langgraph", "rag-ubac", "cache-rag", "agentic-rag"]
+ALLOWED_COLLECTIONS = [
+    "basic_rag_collection", 
+    "multi_modal_collection", 
+    "langgraph_collection", 
+    "rag_ubac_collection",
+    "cache_rag_collection",
+    "cache_rag_cache_collection",
+    "agentic_rag_collection"
+]
+
 # Data dir per type
 DATA_DIR_MAP = {
     "basic-rag": "data/source_data/basic-rag",
@@ -17,6 +27,9 @@ TOP_K = 5
 
 # LLM
 GROQ_MODEL = "openai/gpt-oss-20b"
+
+# Basic RAG
+B_RAG_TYPE = "basic-rag"
 
 # Multi Modal RAG
 RAG_TYPE = "multi-modal"

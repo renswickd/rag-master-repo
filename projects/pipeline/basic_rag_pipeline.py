@@ -3,6 +3,7 @@ from projects.retriever.basic_rag_retriever import BasicRAGRetriever
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from projects.prompts.prompts import BASIC_RAG_PROMPT
+from shared.configs.static import GROQ_MODEL, B_RAG_TYPE
 
 load_dotenv()
 
@@ -10,12 +11,11 @@ class BasicRAGPipeline:
     def __init__(
         self,
         data_dir,
-        persist_directory="chroma_db",
-        groq_model="openai/gpt-oss-20b",
-        rag_type="basic-rag"
+        groq_model=GROQ_MODEL,
+        rag_type=B_RAG_TYPE
     ):
         self.rag_type = rag_type
-        self.retriever = BasicRAGRetriever(data_dir, persist_directory, rag_type)
+        self.retriever = BasicRAGRetriever(data_dir, rag_type=rag_type)
         self.llm = ChatGroq(
             temperature=0.2,
             model=groq_model,

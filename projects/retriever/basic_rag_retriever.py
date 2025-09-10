@@ -1,23 +1,22 @@
-import os
-# from langchain_community.vectorstores import Chroma
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from shared.utils.pdf_utils import load_pdfs_from_folder
-from shared.utils.chroma_utils import get_collection_name_for_rag_type
+from shared.configs.static import TOP_K, B_RAG_TYPE
+from shared.configs.retriever_configs import get_retriever_config
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class BasicRAGRetriever:
-    def __init__(self, data_dir, persist_directory="chroma_db", rag_type="basic-rag"):
+    def __init__(self, data_dir, rag_type=B_RAG_TYPE):
         self.data_dir = data_dir
-        self.persist_directory = persist_directory
         self.rag_type = rag_type
-        self.collection_name = get_collection_name_for_rag_type(rag_type)
-        self.embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-        self.vectorstore = None
+        self.config = get_retriever_config(rag_type)
+
+        self.embedding = self.config["embedding"]
+        self.text_splitter = self.config["text_splitter"]
+        self.collection_name = self.config["collection_name"]
+        self.persist_directory = self.config["persist_directory"]
+        self.vectorstore = self.config["vectorstore"]
 
     def index_pdfs(self):
         print(f"Indexing PDFs for collection: {self.collection_name}")
@@ -34,7 +33,7 @@ class BasicRAGRetriever:
         )
         print(f"Successfully indexed {len(docs)} documents in collection: {self.collection_name}")
 
-    def retrieve(self, query, top_k=3):
+    def retrieve(self, query, top_k=TOP_K):
         if self.vectorstore is None:
             print(f"Loading existing vector store for collection: {self.collection_name}")
             self.vectorstore = Chroma(

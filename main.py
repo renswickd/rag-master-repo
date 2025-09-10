@@ -60,8 +60,8 @@ def main():
         print(f"Error: Data directory '{data_dir}' does not exist!")
         return
 
-    if args.rag_type == "basic-rag":
-        rag = BasicRAGPipeline(data_dir)
+    if args.rag_type == "langgraph":
+        rag = LangGraphRAGPipeline(data_dir)
     elif args.rag_type == "multi-modal":
         rag = MultiModalRAGPipeline(data_dir)
     elif args.rag_type == "rag-ubac":
@@ -70,8 +70,11 @@ def main():
         rag = CacheRAGPipeline(data_dir)
     elif args.rag_type == "agentic-rag":
         rag = AgenticRAGReActPipeline(data_dir)
+    elif args.rag_type == "basic-rag":
+        rag = BasicRAGPipeline(data_dir)
     else:
-        rag = LangGraphRAGPipeline(data_dir)
+        print(f"Error: Unknown RAG type '{args.rag_type}'!")
+        return
 
     if args.info:
         info = rag.get_pipeline_info()

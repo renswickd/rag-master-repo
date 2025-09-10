@@ -5,14 +5,14 @@ from langchain_groq import ChatGroq
 from projects.retriever.langgraph_retriever import LangGraphRetriever
 from projects.prompts.langgraph_prompts import LANGGRAPH_RAG_PROMPT
 from langgraph.graph import StateGraph, END
-from shared.configs.static import PERSIST_DIR, LG_RAG_TYPE, GROQ_MODEL
+from shared.configs.static import LG_RAG_TYPE, GROQ_MODEL, TOP_K
 
 load_dotenv()
 
 class LangGraphRAGPipeline:
-    def __init__(self, data_dir, persist_directory=PERSIST_DIR, groq_model=GROQ_MODEL):
+    def __init__(self, data_dir, groq_model=GROQ_MODEL):
         self.rag_type = LG_RAG_TYPE
-        self.retriever = LangGraphRetriever(data_dir, persist_directory, self.rag_type)
+        self.retriever = LangGraphRetriever(data_dir, self.rag_type)
         self.llm = ChatGroq(
             temperature=0.2,
             model=groq_model,
@@ -24,7 +24,7 @@ class LangGraphRAGPipeline:
     def _build_graph(self):
         def retrieve_node(state: Dict[str, Any]) -> Dict[str, Any]:
             q = state.get("question", "")
-            top_k = state.get("top_k", 4)
+            top_k = state.get("top_k", TOP_K)
             contexts = self.retriever.retrieve(q, top_k=top_k)
             # IMPORTANT (STATE): carry forward the question (and any other needed keys)
             return {"context": "\n".join(contexts), "question": q, "top_k": top_k}
@@ -45,7 +45,7 @@ class LangGraphRAGPipeline:
         g.add_edge("generate", END)
         return g.compile()
 
-    def answer(self, query: str, top_k: int = 4) -> str:
+    def answer(self, query: str, top_k: int = TOP_K) -> str:
         result = self.graph.invoke({"question": query, "top_k": top_k})
         return result.get("answer", "")
 

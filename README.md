@@ -18,17 +18,27 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
 - CLI for vectorizing, querying, inspecting, listing, and deleting collections
 - Grounded prompts to reduce hallucinations
 
+Repository
+- https://github.com/renswickd/rag-master-repo.git
+
 ## Setup
 
-1) Data layout
+1) Quick start
+- From the repo root, run the setup script to create data folders, a virtual environment (`.venv`), and install the repo in editable mode:
+  ```
+  bash ./setup.sh
+  source .venv/bin/activate
+  ```
+
+2) Data layout
 - Place your PDFs in:
   - `data/source_data/basic-rag/`
   - `data/source_data/multi-modal/`
- - `data/source_data/langgraph/`
+  - `data/source_data/langgraph/`
   - `data/source_data/rag-ubac/`
-  - `data/source_data/agentic_rag/`
+  - `data/source_data/agentic-rag/`
 
-2) Environment (.env)
+3) Environment (.env)
 - GROQ (basic, langgraph):
   ```
   GROQ_API_KEY=your_groq_key_here
@@ -47,7 +57,7 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
   TOKENIZERS_PARALLELISM=false
   ```
 
-3) Install
+4) Manual install (alternative to setup.sh)
 ```
 pip install -r requirements.txt
 ```
@@ -153,3 +163,7 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac | agentic-rag}
 - RAG-UBAC tutorial: see `docs/tutorials/rag-ubac-tutorial.md`
 - Cache-RAG: `docs/tutorials/cache-rag-tutorial.md`
 - Agentic-RAG: `docs/tutorials/agentic-rag-tutorial.md`
+
+## Read the Stories on Medium
+- [RAG Series: Part 1 - Basic RAG](https://medium.com/@renswick.d/rag-series-part-1-basic-rag-2368c3243666)
+- [RAG Series: Part 2 - RAG using LangGraph](https://medium.com/@renswick.d/rag-series-part-2-rag-with-langgraph-1f5f2e669518)
