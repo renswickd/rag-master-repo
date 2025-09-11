@@ -2,7 +2,7 @@ from typing import Any, Dict, Literal
 from shared.components.agentic_rag_states import AgentState, RelevanceGrade
 from langchain.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from shared.utils.document_utils import format_docs
+
 from langchain_core.output_parsers import StrOutputParser
 
 def agent(self, state: AgentState) -> Dict[str, Any]:
@@ -43,19 +43,6 @@ def grade_documents(self, state: AgentState) -> Literal["generate", "rewrite"]:
     """Check if retrieved docs are relevant to the question using Pydantic-validated output."""
     print("--- _grade_documents ---")
 
-    # def _latest_human_text(messages):
-    #     for m in reversed(messages):
-    #         if isinstance(m, HumanMessage):
-    #             return m.content
-    #     return ""
-    
-    # def _latest_tool_result(messages):
-    #     for m in reversed(messages):
-    #         if isinstance(m, ToolMessage):
-    #             return m.content
-    #     return ""
-    
-    # Build structured grader
     grader = self.llm.with_structured_output(RelevanceGrade)
 
     # Simple prompt (avoid external hub dependency)
@@ -76,37 +63,17 @@ def grade_documents(self, state: AgentState) -> Literal["generate", "rewrite"]:
 
     messages = state["messages"]
     question = messages[0].content if messages else ""
-    print(f"_grade documents question: {question}")
+    # print(f"DEBUG: grade documents question: {question}")
     last_message = messages[-1] if messages else None
-    print(f"_grade documents last message: {last_message}")
+    # print(f"DEBUG: grade documents last message: {last_message}")
     docs_content = getattr(last_message, "content", "") if last_message else ""
-    print(f"_grade documents content: {docs_content}")
-
-
-    # In tool flows, the last message after ToolNode can be a tool result or AI content
-    # context_text = format_docs(docs_content)
-
-    print(f"Grading question: {question}")
-    print(f"Context sample: {docs_content}")
+    # print(f"DEBUG: grade documents content: {docs_content}")
 
     scored = chain.invoke({"question": question, "context": docs_content})
     score = (scored.binary_score or "").strip().lower()
     print(f"_grade documents score: {score}")
     return "generate" if score == "yes" else "rewrite"
 
-    # question = _latest_human_text(messages)
-    # docs_content = _latest_tool_result(messages)
-
-    # context_text = format_docs(docs_content)
-
-    # print(f"Grading question: {question}")
-    # print(f"Context sample: {context_text}")
-
-    # scored = chain.invoke({"question": question, "context": context_text})
-    # score = (scored.binary_score or "").strip().lower()
-    # print(f"_grade documents score: {score}")
-
-    # return "generate" if score == "yes" else "rewrite"
 
 def generate(self, state: AgentState) -> Dict[str, Any]:
     print("--- _generate ---")
@@ -123,7 +90,7 @@ def generate(self, state: AgentState) -> Dict[str, Any]:
         ),
         input_variables=["context", "question"],
     )
-    # formatted_context = format_docs(docs_content)
+    
     chain = prompt | self.llm | StrOutputParser()
     response = chain.invoke({"context": docs_content, "question": question})
     return {"messages": [AIMessage(content=response)]}

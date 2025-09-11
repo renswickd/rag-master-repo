@@ -5,7 +5,6 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langgraph.graph.message import add_messages
 
 class AgentState(TypedDict):
-    # Conversation state; add_messages appends rather than replaces
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
 
