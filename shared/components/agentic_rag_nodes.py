@@ -2,14 +2,12 @@ from typing import Any, Dict, Literal
 from shared.components.agentic_rag_states import AgentState, RelevanceGrade
 from langchain.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-
 from langchain_core.output_parsers import StrOutputParser
 
 def agent(self, state: AgentState) -> Dict[str, Any]:
     """Decide next action using the model; binds tools for ReAct."""
     messages = state["messages"]
 
-    # Strict system instructions to compel tool usage
     sys = SystemMessage(content=(
         "You are restricted to three capabilities only:\n"
         "1) retriever tools provided, 2) web_search, 3) currency_convert.\n"
@@ -76,7 +74,6 @@ def grade_documents(self, state: AgentState) -> Literal["generate", "rewrite"]:
 
 
 def generate(self, state: AgentState) -> Dict[str, Any]:
-    print("--- _generate ---")
     """RAG answer generation from docs and question."""
     messages = state["messages"]
     question = messages[0].content if messages else ""
@@ -96,7 +93,6 @@ def generate(self, state: AgentState) -> Dict[str, Any]:
     return {"messages": [AIMessage(content=response)]}
 
 def rewrite(self, state: AgentState) -> Dict[str, Any]:
-    print("--- _rewrite ---")
     """Rewrite the question to improve retrieval."""
     messages = state["messages"]
     question = messages[0].content if messages else ""
