@@ -4,24 +4,23 @@ from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import torch
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 import os
 import base64
 import io
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from shared.utils.chroma_utils import get_collection_name_for_rag_type
+from shared.configs.retriever_configs import get_retriever_config
 from dotenv import load_dotenv
-from shared.configs.static import PERSIST_DIR, RAG_TYPE, CLIP_MODEL, CLIP_PROCESSOR
+from shared.configs.static import MM_RAG_TYPE, CLIP_MODEL, CLIP_PROCESSOR
 
 load_dotenv()
 
 class MultiModalRetriever:
-    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=RAG_TYPE):
+    def __init__(self, data_dir, rag_type=MM_RAG_TYPE):
         self.data_dir = data_dir
-        self.persist_directory = persist_directory
         self.rag_type = rag_type
-        self.collection_name = get_collection_name_for_rag_type(rag_type)
+        self.config = get_retriever_config(rag_type)
+        self.collection_name = self.config["collection_name"]
+        self.persist_directory = self.config["persist_directory"]
         
         # Initialize CLIP model
         self.clip_model = CLIPModel.from_pretrained(CLIP_MODEL)
@@ -32,10 +31,8 @@ class MultiModalRetriever:
         self.all_docs = []
         self.all_embeddings = []
         self.image_data_store = {}
-        self.vector_store = None
-        
-        # Text splitter
-        self.splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+        self.vectorstore = self.config["vectorstore"]
+        self.splitter = self.config["text_splitter"]
         
         print(f"Initialized MultiModal Retriever for collection: {self.collection_name}")
         print(f"Data directory: {self.data_dir}")
@@ -191,6 +188,6 @@ class MultiModalRetriever:
         return self.image_data_store.get(image_id)
 
 if __name__ == "__main__":
-    retriever = MultiModalRetriever(data_dir="data/source_data/multi-modal/", rag_type=RAG_TYPE)
+    retriever = MultiModalRetriever(data_dir="data/source_data/multi-modal/", rag_type=MM_RAG_TYPE)
     retriever.index_pdfs()
     print(retriever.get_collection_info())

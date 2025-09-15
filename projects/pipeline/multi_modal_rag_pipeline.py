@@ -3,7 +3,7 @@ from projects.retriever.multi_modal_retriever import MultiModalRetriever
 from projects.prompts.multi_modal_prompts import MULTIMODAL_RAG_PROMPT
 from langchain.chat_models import init_chat_model
 from langchain.schema.messages import HumanMessage
-from shared.configs.static import PERSIST_DIR, RAG_TYPE
+from shared.configs.static import MM_RAG_TYPE
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,11 +11,10 @@ load_dotenv()
 class MultiModalRAGPipeline:
     def __init__(
         self,
-        data_dir,
-        persist_directory=PERSIST_DIR
+        data_dir
     ):
-        self.rag_type = RAG_TYPE
-        self.retriever = MultiModalRetriever(data_dir, persist_directory, self.rag_type)
+        self.rag_type = MM_RAG_TYPE
+        self.retriever = MultiModalRetriever(data_dir, self.rag_type)
         
         # Initialize GPT-4 Vision model
         os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
