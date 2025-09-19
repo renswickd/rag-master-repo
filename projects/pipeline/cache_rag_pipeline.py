@@ -22,7 +22,6 @@ class CacheRAGPipeline:
 
     def _build_graph(self):
         def check_cache(state: Dict[str, Any]) -> Dict[str, Any]:
-            print("---------------------------------check_cache---------------------------------")
             q = state.get("question", "")
             similarity_threshold = state.get("similarity_threshold", CACHE_SIMILARITY_THRESHOLD)
             hits = self.retriever.cache_search(q, top_k=1, similarity_threshold=similarity_threshold)
@@ -33,14 +32,12 @@ class CacheRAGPipeline:
             return {"cache_hit": False, "question": q}
 
         def retrieve_node(state: Dict[str, Any]) -> Dict[str, Any]:
-            print("---------------------------------retrieve_node---------------------------------")
             q = state.get("question", "")
             top_k = state.get("top_k", TOP_K)
             contexts = self.retriever.retrieve(q, top_k=top_k)
             return {"context": "\n".join(contexts), "question": q, "top_k": top_k}
 
         def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
-            print("---------------------------------generate_node---------------------------------")
             context = state.get("context", "")
             question = state.get("question", "")
             prompt = BASIC_RAG_PROMPT.format(context=context, question=question)
@@ -49,11 +46,9 @@ class CacheRAGPipeline:
             return {"answer": content, "question": question, "context": context}
 
         def write_cache(state: Dict[str, Any]) -> Dict[str, Any]:
-            print("---------------------------------write_cache---------------------------------")
             q = state.get("question", "")
             a = state.get("answer", "")
             
-            # Only cache if we have a valid answer (not the default "no related contents" message)
             if q and a and "no related contents" not in a.lower():
                 print("DEBUG: Caching valid answer...")
                 self.retriever.cache_upsert(q, a)
@@ -68,9 +63,9 @@ class CacheRAGPipeline:
         g.add_node("write_cache", write_cache)
 
         g.set_entry_point("check_cache")
-        # Branch: 
-        # if -->> cache_hit == True -> END; 
-        # else -->> retrieve -> generate -> write_cache -> END
+        # Branch logic: 
+        ## if -->> cache_hit == True -> END; 
+        ## else -->> retrieve -> generate -> write_cache -> END
         def route_on_cache(state: Dict[str, Any]):
             return "END" if state.get("cache_hit") else "retrieve"
 

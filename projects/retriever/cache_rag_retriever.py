@@ -67,19 +67,14 @@ class CacheRAGRetriever:
     def cache_search(self, question: str, top_k: int = 1, similarity_threshold: float = 0.5):
         self._ensure_cache_vs()
         try:
-            # Use similarity_search_with_score to get similarity scores
             results = self.cache_vs.similarity_search_with_score(
                 question, 
                 k=top_k, 
                 filter={"type": {"$eq": "cache"}}
             )
             
-            # Filter results based on similarity threshold
-            # ChromaDB returns squared euclidean distance, convert to similarity
             filtered_results = []
             for doc, distance in results:
-                # For euclidean distance, convert to similarity score
-                # Similarity = 1 / (1 + distance)
                 similarity = 1 / (1 + distance)
                 print(f"Cache similarity check: {similarity:.3f} (distance: {distance:.3f}, threshold: {similarity_threshold})")
                 if similarity >= similarity_threshold:

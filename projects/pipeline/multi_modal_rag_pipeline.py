@@ -1,6 +1,4 @@
-import os
 from projects.retriever.multi_modal_retriever import MultiModalRetriever
-from projects.prompts.multi_modal_prompts import MULTIMODAL_RAG_PROMPT
 from langchain.chat_models import init_chat_model
 from langchain.schema.messages import HumanMessage
 from shared.configs.static import MM_RAG_TYPE
@@ -15,23 +13,13 @@ class MultiModalRAGPipeline:
     ):
         self.rag_type = MM_RAG_TYPE
         self.retriever = MultiModalRetriever(data_dir, self.rag_type)
-        
-        # Initialize GPT-4 Vision model
-        os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
         self.llm = init_chat_model("openai:gpt-4.1")
 
     def answer(self, query, top_k=5):
         """Main pipeline for multimodal RAG."""
-        # Retrieve relevant documents
         context_docs = self.retriever.retrieve(query, k=top_k)
-        
-        # Create multimodal message
         message = self._create_multimodal_message(query, context_docs)
-        
-        # Get response from GPT-4V
         response = self.llm.invoke([message])
-        
-        # Print retrieved context info
         self._print_retrieved_info(context_docs)
         
         return response.content
@@ -46,11 +34,9 @@ class MultiModalRAGPipeline:
             "text": f"Question: {query}\n\nContext:\n"
         })
         
-        # Separate text and image documents
         text_docs = [doc for doc in retrieved_docs if doc.metadata.get("type") == "text"]
         image_docs = [doc for doc in retrieved_docs if doc.metadata.get("type") == "image"]
-        
-        # Add text context
+
         if text_docs:
             text_context = "\n\n".join([
                 f"[Page {doc.metadata['page']}]: {doc.page_content}"
@@ -78,7 +64,6 @@ class MultiModalRAGPipeline:
                         }
                     })
         
-        # Add instruction
         content.append({
             "type": "text",
             "text": "\n\nPlease answer the question based on the provided text and images."
