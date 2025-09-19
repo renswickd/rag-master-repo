@@ -1,23 +1,21 @@
-import os
-import fitz
+import os, fitz
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
-from shared.utils.chroma_utils import get_collection_name_for_rag_type
-from shared.configs.static import FILE_ACCESS_METADATA, VALID_ROLES, PERSIST_DIR, RAG_UBAC_TYPE, EMBEDDING_MODEL
+from shared.configs.retriever_configs import get_retriever_config
+from shared.configs.static import FILE_ACCESS_METADATA, VALID_ROLES, RAG_UBAC_TYPE
 
 load_dotenv()
 
 class RAGUBACRetriever:
-    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=RAG_UBAC_TYPE):
+    def __init__(self, data_dir, rag_type=RAG_UBAC_TYPE):
         self.data_dir = data_dir
-        self.persist_directory = persist_directory
         self.rag_type = rag_type
-        self.collection_name = get_collection_name_for_rag_type(rag_type)
-        self.embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+        self.config = get_retriever_config(rag_type)
+        self.embedding = self.config["embedding"]
+        self.text_splitter = self.config["text_splitter"]
+        self.persist_directory = self.config["persist_directory"]
         self.vectorstore = None
+        self.collection_name = self.config["collection_name"]
 
     def _get_access_levels_for_role(self, role: str):
         """Determine which documents a role can access based on hierarchy."""
@@ -57,7 +55,6 @@ class RAGUBACRetriever:
                 
             pdf_path = os.path.join(self.data_dir, filename)
             
-            # Check if file is in our access metadata
             if filename not in FILE_ACCESS_METADATA:
                 print(f"Warning: {filename} not found in FILE_ACCESS_METADATA, defaulting to executive-only access")
                 base_access = "executive"
@@ -86,7 +83,6 @@ class RAGUBACRetriever:
                     "file_type": "pdf"
                 }]
                 
-                # Split text into chunks with metadata
                 chunks = self.text_splitter.create_documents([text], metadatas=metadatas)
                 docs.extend(chunks)
 
@@ -127,16 +123,11 @@ class RAGUBACRetriever:
             print(f"Role '{role}' has no access to any documents.")
             return []
         
-        # Create filter for ChromaDB
         chroma_filter = {"access_role": {"$eq": role}}
         
         try:
             docs = self.vectorstore.similarity_search(query, k=top_k, filter=chroma_filter)
-            print("\n\n")
-            print(docs)
-            print("\n\n")
-            retrieved_sources = set(doc.metadata.get("source", "") for doc in docs)
-            print(f"Retrieved from sources: {retrieved_sources}")
+            # retrieved_sources = set(doc.metadata.get("source", "") for doc in docs)
             return [doc.page_content for doc in docs]
         except Exception as e:
             print(f"Error during retrieval: {e}")
