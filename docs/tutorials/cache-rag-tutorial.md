@@ -82,11 +82,8 @@ Edit `shared/configs/static.py`:
 
 ```python
 CACHE_RAG_TYPE = "cache-rag"
-DEFAULT_NO_CONTENT_MESSAGE = "I am a helpful assistant..."
 CACHE_SIMILARITY_THRESHOLD = 0.5  # 50% similarity threshold for cache hits
 ```
-
-- `DEFAULT_NO_CONTENT_MESSAGE`: Used to identify responses that shouldn't be cached
 - `CACHE_SIMILARITY_THRESHOLD`: Minimum similarity score (0.75 = 75%) required for cache hits
 
 ## 7. Technical Details

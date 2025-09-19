@@ -1,11 +1,10 @@
 from typing_extensions import TypedDict
-from typing import Annotated, Sequence, Literal, Dict, Any, List, Optional
+from typing import Annotated, Sequence
 from pydantic import BaseModel, Field, confloat, conint, constr
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
+from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 
 class AgentState(TypedDict):
-    # Conversation state; add_messages appends rather than replaces
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
 

@@ -1,27 +1,23 @@
-import fitz  # PyMuPDF
+import fitz, os , io, base64
 from langchain_core.documents import Document
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import torch
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-import os
-import base64
-import io
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from shared.utils.chroma_utils import get_collection_name_for_rag_type
+from shared.configs.retriever_configs import get_retriever_config
 from dotenv import load_dotenv
-from shared.configs.static import PERSIST_DIR, RAG_TYPE, CLIP_MODEL, CLIP_PROCESSOR
+from shared.configs.static import MM_RAG_TYPE, CLIP_MODEL, CLIP_PROCESSOR
 
 load_dotenv()
 
 class MultiModalRetriever:
-    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=RAG_TYPE):
+    def __init__(self, data_dir, rag_type=MM_RAG_TYPE):
         self.data_dir = data_dir
-        self.persist_directory = persist_directory
         self.rag_type = rag_type
-        self.collection_name = get_collection_name_for_rag_type(rag_type)
+        self.config = get_retriever_config(rag_type)
+        self.collection_name = self.config["collection_name"]
+        self.persist_directory = self.config["persist_directory"]
         
         # Initialize CLIP model
         self.clip_model = CLIPModel.from_pretrained(CLIP_MODEL)
@@ -32,25 +28,22 @@ class MultiModalRetriever:
         self.all_docs = []
         self.all_embeddings = []
         self.image_data_store = {}
-        self.vector_store = None
-        
-        # Text splitter
-        self.splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+        self.vectorstore = self.config["vectorstore"]
+        self.splitter = self.config["text_splitter"]
         
         print(f"Initialized MultiModal Retriever for collection: {self.collection_name}")
         print(f"Data directory: {self.data_dir}")
 
     def embed_image(self, image_data):
         """Embed image using CLIP"""
-        if isinstance(image_data, str):  # If path
+        if isinstance(image_data, str):  
             image = Image.open(image_data).convert("RGB")
-        else:  # If PIL Image
+        else:  
             image = image_data
         
         inputs = self.clip_processor(images=image, return_tensors="pt")
         with torch.no_grad():
             features = self.clip_model.get_image_features(**inputs)
-            # Normalize embeddings to unit vector
             features = features / features.norm(dim=-1, keepdim=True)
             return features.squeeze().numpy()
     
@@ -61,11 +54,10 @@ class MultiModalRetriever:
             return_tensors="pt", 
             padding=True,
             truncation=True,
-            max_length=77  # CLIP's max token length
+            max_length=77  
         )
         with torch.no_grad():
             features = self.clip_model.get_text_features(**inputs)
-            # Normalize embeddings
             features = features / features.norm(dim=-1, keepdim=True)
             return features.squeeze().numpy()
 
@@ -73,12 +65,12 @@ class MultiModalRetriever:
         """Process PDFs and create embeddings for both text and images"""
         print(f"Indexing multi-modal PDFs for collection: {self.collection_name}")
         
-        # Check if data directory exists
+        
         if not os.path.exists(self.data_dir):
             print(f"Error: Data directory {self.data_dir} does not exist!")
             return
         
-        # Find PDF files in the data directory
+        
         pdf_files = [f for f in os.listdir(self.data_dir) if f.lower().endswith('.pdf')]
         
         if not pdf_files:
@@ -90,12 +82,12 @@ class MultiModalRetriever:
             print(f"Processing PDF: {pdf_file}")
             self._process_single_pdf(pdf_path)
         
-        # Create FAISS vector store
+        
         if self.all_docs and self.all_embeddings:
             embeddings_array = np.array(self.all_embeddings)
             self.vector_store = FAISS.from_embeddings(
                 text_embeddings=[(doc.page_content, emb) for doc, emb in zip(self.all_docs, embeddings_array)],
-                embedding=None,  # Using precomputed embeddings
+                embedding=None,  
                 metadatas=[doc.metadata for doc in self.all_docs]
             )
             print(f"Successfully indexed {len(self.all_docs)} documents (text + images) in collection: {self.collection_name}")
@@ -163,10 +155,10 @@ class MultiModalRetriever:
             print("Vector store not initialized. Please run index_pdfs() first.")
             return []
         
-        # Embed query using CLIP
+        
         query_embedding = self.embed_text(query)
         
-        # Search in unified vector store
+        
         results = self.vector_store.similarity_search_by_vector(
             embedding=query_embedding,
             k=top_k
@@ -191,6 +183,6 @@ class MultiModalRetriever:
         return self.image_data_store.get(image_id)
 
 if __name__ == "__main__":
-    retriever = MultiModalRetriever(data_dir="data/source_data/multi-modal/", rag_type=RAG_TYPE)
+    retriever = MultiModalRetriever(data_dir="data/source_data/multi-modal/", rag_type=MM_RAG_TYPE)
     retriever.index_pdfs()
     print(retriever.get_collection_info())

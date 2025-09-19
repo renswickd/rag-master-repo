@@ -1,28 +1,35 @@
-from typing import List#, Callable
+from typing import List
 from langchain.tools import StructuredTool
 from projects.retriever.agentic_rag_retriever import AgenticRAGRetriever
 from shared.components.agentic_rag_states import AgenticRetrieverInput
+from shared.configs.static import TOP_K
 
 
 def make_agentic_retriever_tool(retriever: AgenticRAGRetriever) -> StructuredTool:
-    """Factory to create a StructuredTool for the Agentic RAG retriever.
+    """Creates a StructuredTool for the Agentic RAG retriever.
 
     The tool searches your resume knowledge base stored in ChromaDB under
     the collection configured for the agentic RAG type (agentic_rag_collection).
     """
 
-    def _retrieve(query: str, top_k: int = 5) -> str:
+    def _retrieve(query: str, top_k: int = TOP_K) -> str:
+        """Retrieve relevant chunks from the resume knowledge base.
+
+        Args:
+            query (str): The search query.
+            top_k (int, optional): The number of results to retrieve. Defaults to TOP_K.
+
+        Returns:
+            str: The retrieved documents, formatted as a single string with each document on a new line.
+    """
         try:
             docs: List[str] = retriever.retrieve(query, top_k=top_k)
             if not docs:
                 return "No relevant results found in resume collection."
-            # Join top docs into a simple plaintext context block
+
             lines: List[str] = []
             for i, d in enumerate(docs, 1):
                 snippet = d.strip()
-                # # Keep snippets modest to avoid overly long messages
-                # if len(snippet) > 1200:
-                #     snippet = snippet[:1200] + "..."
                 lines.append(f"[{i}] {snippet}")
             return "\n".join(lines)
         except Exception as e:

@@ -1,24 +1,23 @@
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from shared.utils.pdf_utils import load_pdfs_from_folder
-from shared.utils.chroma_utils import get_collection_name_for_rag_type
-from shared.configs.static import PERSIST_DIR, EMBEDDING_MODEL, CACHE_RAG_TYPE, TOP_K
+from shared.configs.retriever_configs import get_retriever_config
+from shared.configs.static import CACHE_RAG_TYPE, TOP_K
 
 load_dotenv()
 
 class CacheRAGRetriever:
-    def __init__(self, data_dir, persist_directory=PERSIST_DIR, rag_type=CACHE_RAG_TYPE):
+    def __init__(self, data_dir, rag_type=CACHE_RAG_TYPE):
         self.data_dir = data_dir
-        self.persist_directory = persist_directory
         self.rag_type = rag_type
+        self.config = get_retriever_config(rag_type)
 
-        self.embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-
-        # Collections
-        self.retriever_collection = get_collection_name_for_rag_type(rag_type)  # "cache_rag_collection"
+        self.embedding = self.config["embedding"]
+        self.text_splitter = self.config["text_splitter"]
+        self.retriever_collection = self.config["collection_name"]
+        self.persist_directory = self.config["persist_directory"]
+        self.vectorstore = self.config["vectorstore"]
+        
         self.cache_collection = "cache_rag_cache_collection"
 
         # Vectorstores
@@ -68,19 +67,14 @@ class CacheRAGRetriever:
     def cache_search(self, question: str, top_k: int = 1, similarity_threshold: float = 0.5):
         self._ensure_cache_vs()
         try:
-            # Use similarity_search_with_score to get similarity scores
             results = self.cache_vs.similarity_search_with_score(
                 question, 
                 k=top_k, 
                 filter={"type": {"$eq": "cache"}}
             )
             
-            # Filter results based on similarity threshold
-            # ChromaDB returns squared euclidean distance, convert to similarity
             filtered_results = []
             for doc, distance in results:
-                # For euclidean distance, convert to similarity score
-                # Similarity = 1 / (1 + distance)
                 similarity = 1 / (1 + distance)
                 print(f"Cache similarity check: {similarity:.3f} (distance: {distance:.3f}, threshold: {similarity_threshold})")
                 if similarity >= similarity_threshold:

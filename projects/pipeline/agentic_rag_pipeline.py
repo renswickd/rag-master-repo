@@ -2,6 +2,9 @@ import os
 from dotenv import load_dotenv
 from typing import Any, Dict, List, Optional
 from langchain_groq import ChatGroq
+from langgraph.graph import StateGraph, START, END
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.messages import HumanMessage, AIMessage
 from shared.configs.static import (
     GROQ_MODEL as DEFAULT_GROQ_MODEL,
     AGENTIC_RAG_TYPE,
@@ -12,9 +15,6 @@ from shared.tools.agentic_retriever_tool import make_agentic_retriever_tool
 from projects.retriever.agentic_rag_retriever import AgenticRAGRetriever
 from shared.components.agentic_rag_nodes import agent, grade_documents, rewrite, generate
 from shared.components.agentic_rag_states import AgentState
-from langgraph.graph import StateGraph, START, END
-from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import HumanMessage, AIMessage
 
 
 load_dotenv()
@@ -31,7 +31,6 @@ class AgenticRAGReActPipeline:
         extra_tools: Optional[List[Any]] = None,
     ):
         model_name = groq_model or DEFAULT_GROQ_MODEL
-        print(f"Using model: {model_name}")
         self.llm = ChatGroq(
             model=model_name,
             temperature=temperature,
@@ -70,14 +69,11 @@ class AgenticRAGReActPipeline:
         workflow.add_node("restricted", _restricted)
 
         workflow.add_edge(START, "agent")
-
         workflow.add_conditional_edges(
             "agent",
             tools_condition,
             {
-                # If the agent called any tool, execute it
                 "tools": "retrieve",
-                # If the agent tried to answer directly, treat as out of scope
                 END: "restricted",
             },
         )

@@ -32,7 +32,7 @@ GROQ_MODEL = "openai/gpt-oss-20b"
 B_RAG_TYPE = "basic-rag"
 
 # Multi Modal RAG
-RAG_TYPE = "multi-modal"
+MM_RAG_TYPE = "multi-modal"
 ## retriever
 CLIP_MODEL = "openai/clip-vit-base-patch32"
 CLIP_PROCESSOR = "openai/clip-vit-base-patch32"
@@ -51,7 +51,6 @@ RAG_UBAC_TYPE = "rag-ubac"
 
 # Cache-RAG
 CACHE_RAG_TYPE = "cache-rag"
-DEFAULT_NO_CONTENT_MESSAGE = "I am a helpful assitant for you to assist with the internal knowledge base; No related contents retrived for the provided query - Try modifying your query for assistance."
 CACHE_SIMILARITY_THRESHOLD = 0.5
 
 # Agentic-RAG
