@@ -17,14 +17,6 @@ def agent(self, state: AgentState) -> Dict[str, Any]:
     ))
 
     model = self.llm.bind_tools(self.tools)
-
-    # If supported by ChatGroq in your env, force tool use:
-    try:
-        model = self.llm.bind_tools(self.tools)#, tool_choice="required")
-    except TypeError:
-        # If not supported, the strict system prompt above will still push the model to use tools.
-        pass
-
     response = model.invoke([sys, *messages])
 
     if getattr(self, "debug", False):
@@ -42,8 +34,6 @@ def grade_documents(self, state: AgentState) -> Literal["generate", "rewrite"]:
     print("--- _grade_documents ---")
 
     grader = self.llm.with_structured_output(RelevanceGrade)
-
-    # Simple prompt (avoid external hub dependency)
     prompt = PromptTemplate(
         template=(
             "You are a grader assessing relevance of a retrieved document to a user question.\n"

@@ -1,5 +1,7 @@
 ## Agentic-RAG Tutorial
 
+Companion blog post: https://medium.com/@renswick.d/rag-series-part-3-agentic-rag-with-langgraph-tools-routing-and-control-7b0b3e15eb43 
+
 This tutorial explains the Agentic RAG pipeline which combines LangGraph orchestration with tool use (ReAct style). The agent can call:
 - `resume_retriever` to query your resume knowledge base (Chroma collection: `agentic_rag_collection`)
 - `web_search` (SerpAPI-backed) for fresh information
