@@ -162,8 +162,11 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac | agentic-rag}
 - RAG using Langgraph: `docs/tutorials/langgraph-rag.md`
 - RAG-UBAC tutorial: see `docs/tutorials/rag-ubac-tutorial.md`
 - Cache-RAG: `docs/tutorials/cache-rag-tutorial.md`
-- Agentic-RAG: `docs/tutorials/agentic-rag-tutorial.md`
+- Agentic-RAG: `docs/tutorials/agentic-rag-tutorial.md` 
 
 ## Read the Stories on Medium
 - [RAG Series: Part 1 - Basic RAG](https://medium.com/@renswick.d/rag-series-part-1-basic-rag-2368c3243666)
 - [RAG Series: Part 2 - RAG using LangGraph](https://medium.com/@renswick.d/rag-series-part-2-rag-with-langgraph-1f5f2e669518)
+- [RAG Series: Part 3 - Agentic RAG with LangGraph](https://medium.com/@renswick.d/rag-series-part-3-agentic-rag-with-langgraph-tools-routing-and-control-7b0b3e15eb43)
+- [RAG Series: Part 4 - Multi-Modal RAG with CLIP and GPT-4.1](https://medium.com/@renswick.d/rag-series-part-4-multi-modal-rag-retrieval-with-text-images-using-clip-gpt-4-1-fdbb2b3e5467)
+- [RAG Series: Part 5 - Cache-RAG: Intelligent Caching for RAG](https://medium.com/@renswick.d/rag-series-part-5-cache-rag-intelligent-caching-aa912d3f49bc)

@@ -1,7 +1,7 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from shared.utils.chroma_utils import get_collection_name_for_rag_type
-from shared.configs.static import PERSIST_DIR, EMBEDDING_MODEL, TOP_K
+from shared.configs.static import PERSIST_DIR, EMBEDDING_MODEL
 
 def get_retriever_config(rag_type: str):
     return {
