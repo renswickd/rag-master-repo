@@ -51,11 +51,8 @@ def grade_documents(self, state: AgentState) -> Literal["generate", "rewrite"]:
 
     messages = state["messages"]
     question = messages[0].content if messages else ""
-    # print(f"DEBUG: grade documents question: {question}")
     last_message = messages[-1] if messages else None
-    # print(f"DEBUG: grade documents last message: {last_message}")
     docs_content = getattr(last_message, "content", "") if last_message else ""
-    # print(f"DEBUG: grade documents content: {docs_content}")
 
     scored = chain.invoke({"question": question, "context": docs_content})
     score = (scored.binary_score or "").strip().lower()
