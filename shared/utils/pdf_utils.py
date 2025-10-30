@@ -1,5 +1,5 @@
 import os
-import fitz  # PyMuPDF
+import fitz
 
 def load_pdfs_from_folder(folder_path: str):
     """Load and concatenate text from all PDFs in a folder using PyMuPDF."""
