@@ -59,7 +59,7 @@ class AgenticRAGReActPipeline:
         workflow.add_node("generate", lambda state: generate(self, state))
         # Node to handle conversations that try to bypass tools
         def _restricted(_: AgentState) -> Dict[str, Any]:
-            print("--- _restricted ---")
+            # print("--- _restricted ---")
             msg = (
                 "This app only supports: document retrieval, web search, and currency conversion. "
                 "Your request appears outside this scope. Please use one of the supported capabilities."

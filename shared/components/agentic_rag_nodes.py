@@ -31,7 +31,7 @@ def agent(self, state: AgentState) -> Dict[str, Any]:
 
 def grade_documents(self, state: AgentState) -> Literal["generate", "rewrite"]:
     """Check if retrieved docs are relevant to the question using Pydantic-validated output."""
-    print("--- _grade_documents ---")
+    # print("--- _grade_documents ---")
 
     grader = self.llm.with_structured_output(RelevanceGrade)
     prompt = PromptTemplate(
