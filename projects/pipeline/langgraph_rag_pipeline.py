@@ -26,7 +26,6 @@ class LangGraphRAGPipeline:
             q = state.get("question", "")
             top_k = state.get("top_k", TOP_K)
             contexts = self.retriever.retrieve(q, top_k=top_k)
-            # IMPORTANT (STATE): carry forward the question (and any other needed keys)
             return {"context": "\n".join(contexts), "question": q, "top_k": top_k}
 
         def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:

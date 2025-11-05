@@ -16,11 +16,7 @@ class BasicRAGPipeline:
     ):
         self.rag_type = rag_type
         self.retriever = BasicRAGRetriever(data_dir, rag_type=rag_type)
-        self.llm = ChatGroq(
-            temperature=0.2,
-            model=groq_model,
-            api_key=os.getenv("GROQ_API_KEY")
-        )
+        self.llm = ChatGroq(temperature=0.2, model=groq_model, api_key=os.getenv("GROQ_API_KEY"))
 
     def answer(self, query, top_k=3):
         contexts = self.retriever.retrieve(query, top_k=top_k)
