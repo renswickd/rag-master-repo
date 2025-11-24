@@ -26,9 +26,7 @@ class CacheRAGPipeline:
             similarity_threshold = state.get("similarity_threshold", CACHE_SIMILARITY_THRESHOLD)
             hits = self.retriever.cache_search(q, top_k=1, similarity_threshold=similarity_threshold)
             if hits:
-                print("DEBUG: Cache hit! Returning cached answer.")
                 return {"cache_hit": True, "answer": hits[0].page_content, "question": q}
-            print("DEBUG: Cache miss. Proceeding to RAG retrieval.")
             return {"cache_hit": False, "question": q}
 
         def retrieve_node(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -50,7 +48,6 @@ class CacheRAGPipeline:
             a = state.get("answer", "")
             
             if q and a and "no related contents" not in a.lower():
-                print("DEBUG: Caching valid answer...")
                 self.retriever.cache_upsert(q, a)
             else:
                 print("Skipping cache (No valid content to cache)")

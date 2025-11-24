@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from projects.retriever.rag_ubac_retriever import RAGUBACRetriever
 from projects.prompts.prompts import BASIC_RAG_PROMPT
-from shared.configs.static import GROQ_MODEL, RAG_UBAC_TYPE
+from shared.configs.static import GROQ_MODEL, RAG_UBAC_TYPE, TOP_K
 from shared.components.rag_ubac_scripts import get_ubac_role
 
 load_dotenv()
@@ -24,7 +24,7 @@ class RAGUBACPipeline:
             api_key=os.getenv("GROQ_API_KEY")
         )
 
-    def answer(self, query, top_k=3):
+    def answer(self, query, top_k=TOP_K):
         contexts = self.retriever.retrieve(query, role=self.role, top_k=top_k)
         context = "\n".join(contexts)
         if not context.strip():

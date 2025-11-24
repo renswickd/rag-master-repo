@@ -1,21 +1,18 @@
 from projects.retriever.multi_modal_retriever import MultiModalRetriever
 from langchain.chat_models import init_chat_model
 from langchain.schema.messages import HumanMessage
-from shared.configs.static import MM_RAG_TYPE
+from shared.configs.static import MM_RAG_TYPE, TOP_K
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class MultiModalRAGPipeline:
-    def __init__(
-        self,
-        data_dir
-    ):
+    def __init__(self, data_dir):
         self.rag_type = MM_RAG_TYPE
         self.retriever = MultiModalRetriever(data_dir, self.rag_type)
         self.llm = init_chat_model("openai:gpt-4.1")
 
-    def answer(self, query, top_k=5):
+    def answer(self, query, top_k=TOP_K):
         """Main pipeline for multimodal RAG."""
         context_docs = self.retriever.retrieve(query, k=top_k)
         message = self._create_multimodal_message(query, context_docs)
