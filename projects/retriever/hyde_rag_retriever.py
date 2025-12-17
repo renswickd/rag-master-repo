@@ -1,8 +1,8 @@
-import os
 from typing import List, Dict, Any
 from shared.configs.retriever_configs import get_retriever_config
-from shared.configs.static import HYDE_RAG_TYPE, PERSIST_DIR, EMBEDDING_MODEL, TOP_K
+from shared.configs.static import HYDE_RAG_TYPE, PERSIST_DIR, TOP_K
 from langchain_chroma import Chroma
+from shared.utils.pdf_utils import load_pdfs_from_folder
 
 class HyDERetriever:
     def __init__(self, data_dir: str, rag_type: str = HYDE_RAG_TYPE):
@@ -32,8 +32,52 @@ class HyDERetriever:
         self.vectorstore = None
 
     def index_pdfs(self):
-        # TODO: implement indexing if needed
-        print("HyDE retriever: index_pdfs() not implemented in fallback. Use project retriever config to enable indexing.")
+        print(f"Indexing PDFs for collection: {self.collection_name}")
+        try:
+            pdf_texts = load_pdfs_from_folder(self.data_dir)
+        except Exception as e:
+            print(f"Failed to load PDFs from {self.data_dir}: {e}")
+            return
+
+        if not pdf_texts:
+            print("No PDF texts found to index for HyDE.")
+            return
+
+        docs = []
+        metadatas = []
+        if self.text_splitter:
+            for text in pdf_texts:
+                try:
+                    chunks = self.text_splitter.create_documents([text])
+                except Exception:
+                    try:
+                        chunks = [type("Doc", (), {"page_content": c})() for c in self.text_splitter.split_text(text)]
+                    except Exception:
+                        chunks = []
+                for c in chunks:
+                    content = getattr(c, "page_content", None) or getattr(c, "content", None) or str(c)
+                    docs.append(content)
+                    metadatas.append({"source": "hyde", "type": "retriever"})
+        else:
+            for text in pdf_texts:
+                docs.append(text)
+                metadatas.append({"source": "hyde", "type": "retriever"})
+
+        if not docs:
+            print("No document chunks to index for HyDE.")
+            return
+
+        try:
+            self._vs = Chroma.from_texts(
+                texts=docs,
+                embedding=self.embedding,
+                metadatas=metadatas,
+                persist_directory=self.persist_directory,
+                collection_name=self.collection_name
+            )
+            print(f"Successfully indexed {len(docs)} chunks in {self.collection_name}")
+        except Exception as e:
+            print(f"Failed to create/update Chroma collection for HyDE: {e}")
 
     def _ensure_vs(self):
         if self._vs is None:
