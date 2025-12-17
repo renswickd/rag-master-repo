@@ -6,7 +6,6 @@ ALLOWED_COLLECTIONS = [
     "langgraph_collection", 
     "rag_ubac_collection",
     "cache_rag_collection",
-    "cache_rag_cache_collection",
     "agentic_rag_collection"
 ]
 
