@@ -4,6 +4,7 @@ from projects.pipeline.basic_rag_pipeline import BasicRAGPipeline
 from projects.pipeline.multi_modal_rag_pipeline import MultiModalRAGPipeline
 from projects.pipeline.langgraph_rag_pipeline import LangGraphRAGPipeline
 from projects.pipeline.agentic_rag_pipeline import AgenticRAGReActPipeline
+from projects.pipeline.hyde_rag_pipeline import HyDERAGPipeline
 from shared.utils.chroma_utils import list_existing_collections, delete_collection
 from shared.configs.static import RAG_TYPES, DATA_DIR_MAP
 from projects.pipeline.rag_ubac_pipeline import RAGUBACPipeline
@@ -70,6 +71,8 @@ def main():
         rag = CacheRAGPipeline(data_dir)
     elif args.rag_type == "agentic-rag":
         rag = AgenticRAGReActPipeline(data_dir)
+    elif args.rag_type == "hyde":
+        rag = HyDERAGPipeline(data_dir)
     elif args.rag_type == "basic-rag":
         rag = BasicRAGPipeline(data_dir)
     else:
