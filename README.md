@@ -7,12 +7,13 @@ A modular Retrieval-Augmented Generation (RAG) repository with swappable pipelin
 - rag-ubac: Role-based access control (UBAC) RAG
 - Cache-RAG: Intelligent caching of Q&A pairs with LangGraph orchestration
 - Agentic-RAG: Tool-using LangGraph ReAct pipeline with resume retriever, web search, and currency conversion
+ - HyDE RAG: Hypothetical Document Embedding (HyDE) pipeline — generate a concise hypothetical document that answers the query, retrieve relevant documents using the HyDE embedding, then produce a grounded final answer using the retrieved context.
 
 ## Features
 
 - PDF ingestion and chunking
 - Persistent vector storage (Chroma PersistentClient) with per-type collections:
-  - `basic_rag_collection`, `multi_modal_collection`, `langgraph_collection`, `agentic_rag_collection`, `cache_rag_collection`, `rag_ubac_collection`.
+  - `basic_rag_collection`, `multi_modal_collection`, `langgraph_collection`, `agentic_rag_collection`, `cache_rag_collection`, `rag_ubac_collection`, `hyde_collection`.
 - Modular retrievers, prompts, and pipelines
 - GROQ LLM for basic RAG; OpenAI GPT‑4.1 for multi‑modal; GROQ for LangGraph
 - CLI for vectorizing, querying, inspecting, listing, and deleting collections
@@ -37,6 +38,7 @@ Repository
   - `data/source_data/langgraph/`
   - `data/source_data/rag-ubac/`
   - `data/source_data/agentic-rag/`
+  - `data/source_data/hyde/`
 
 3) Environment (.env)
 - GROQ (basic, langgraph):
@@ -92,6 +94,13 @@ pip install -r requirements.txt
   python main.py --rag_type agentic-rag --info  # collection info
   ```
 
+- HyDE RAG
+  ```
+  python main.py --rag_type hyde
+  python main.py --rag_type hyde -v            # (re-)vectorize HyDE data (creates/updates `hyde_collection`)
+  python main.py --rag_type hyde --info       # collection info
+  ```
+
 - rag-ubac
   You will be prompted to enter your role (executive/hr/junior). Answers are restricted by role-based access. UBAC uses metadata filters; re-run vectorization after updating FILE_ACCESS_METADATA.
   ```
@@ -142,10 +151,12 @@ data/source_data/{basic-rag | multi-modal | langgraph | rag-ubac | agentic-rag}
   - `rag_ubac_pipeline.py`
   - `cache_rag_pipeline.py`
   - `agentic_rag_pipeline.py`
+  - `hyde_rag_pipeline.py`
 - `projects/prompts/`
   - `prompts.py` (basic)
   - `multi_modal_prompts.py`
   - `langgraph_prompts.py`
+  - `hyde_prompts.py`
 - `shared/utils/`
   - `pdf_utils.py` (PyMuPDF)
   - `chroma_utils.py` (PersistentClient, collection helpers)
